@@ -31,15 +31,15 @@ mongoose.connect(mongodb_uri).then(() => {
 
 // get router from usersRouter
 import userRoute from "./API/users/userRoute";
-app.use("/API/users", userRoute);
+app.use("/api/users", userRoute);
 
 // get router from wordRouter
 import wordRoute from "./API/words/wordRoute";
-app.use("/API/words", wordRoute);
+app.use("/api/words", wordRoute);
 
 // get router from wordRouter
 import userWordsRoute from "./API/userWords/userWordsRoute";
-app.use("/API/userWords", userWordsRoute);
+app.use("/api/userWords", userWordsRoute);
 
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.url}`);
