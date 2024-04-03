@@ -22,7 +22,7 @@ export const registerUser = async (req: any, res: any) => {
     const userDB = await user.save();
     console.log(userDB)
 
-    res.send({ ok: true, userDB });
+    res.send({ ok: true });
 
   } catch (error) {
     console.error(error);
