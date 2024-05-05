@@ -7,13 +7,13 @@ import dotenv from 'dotenv';
 dotenv.config()
 
 const app = express(); 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 //middleware for using parser
 app.use(cookieParser())
 
 //static files
-app.use(express.static("public"));
+// app.use(express.static("public"));
 
 //body
 app.use(express.json());

@@ -8,12 +8,14 @@ const secret = JWT_SECRET;
 
 const saltRounds = 10;
 
-//register user (work ok)
+//register user
 export const registerUser = async (req: any, res: any) => {
   try {
+    console.log("hello from server registerUser")
+
     const { userName, password } = req.body;
     console.log({userName}, {password} )
-    if (!userName || !password) throw new Error("At userCont registrerUser complete all fields");
+    if (!userName || !password) throw new Error("At userCont-registerUser complete all fields");
    
     //encode password with bcrypt.js
     const hash = await bcrypt.hash(password, saltRounds);
@@ -28,9 +30,9 @@ export const registerUser = async (req: any, res: any) => {
     console.error(error);
     res.send({ error: error.message });
   }
-}
+} //work ok
 
-//work ok
+//login user
 export const login = async (req: any, res: any) => {
   try {
     const { userName, password } = req.body;
@@ -49,19 +51,19 @@ export const login = async (req: any, res: any) => {
     const match:boolean = await bcrypt.compare(password, hash);
     if (!match) throw new Error("At userCont login: some of the details are incorrect");
 
-    //creat and incript cookie with JWT
+    //create and encode cookie with JWT
     // encode
     const JWTCookie = jwt.encode(userDB._id, secret); //the id given by mongo is store in the cookie
     console.log("At userCont login JWTCookie:",JWTCookie) //got it here!
 
-    res.cookie("user", JWTCookie, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }); //send the cookie to claint
+    res.cookie("user", JWTCookie, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }); //send the cookie to client
     res.send({ ok: true });
     
   } catch (error) {
     console.error(error);
     res.status(401).send({ error: error.message });
   }
-}
+}//work ok
 
 // export async function getUser(userID: string) {
 //   try {
