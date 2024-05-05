@@ -23,9 +23,11 @@ export const registerUser = async (req: any, res: any) => {
     const user = new UserModel({ userName, password: hash });
     const userDB = await user.save();
     console.log(userDB)
-
-    res.send({ ok: true, userDB });
-
+    if (userDB) {
+    res.send({ ok: true });
+    } else {
+      res.send({ok: false})
+    }
   } catch (error) {
     console.error(error);
     res.send({ error: error.message });
