@@ -21,7 +21,7 @@ export const registerUser = async (req: any, res: any) => {
     const hash = await bcrypt.hash(password, saltRounds);
 
     const user = new UserModel({ userName, password: hash });
-    const userDB = await user.save();
+    const userDB = await user.save(); //if there is problem saving in DB it catch the error 
     console.log(userDB)
     if (userDB) {
     res.send({ ok: true });
@@ -30,7 +30,7 @@ export const registerUser = async (req: any, res: any) => {
     }
   } catch (error) {
     console.error(error);
-    res.send({ error: error.message });
+    res.send({ ok: false, error: error.message });
   }
 } //work ok
 
