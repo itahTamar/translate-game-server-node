@@ -3,6 +3,7 @@
 // import { UserModel, UserSchema } from './../users/userModel';
 // import mongoose from "mongoose";
 //import { UserWordModel } from "../userWords/userWordsModel";
+import { ObjectId } from "mongodb";
 import { WordModel, WordSchema, Word, UserWordsModel } from "./wordModel";
 //import { getUser } from '../users/userCont';
 import jwt from 'jwt-simple';
@@ -71,6 +72,17 @@ export async function addWord(req: any, res: any) {
 
         res.send({ words: userWords }); //*till here everything work ok!
 
+    } catch (error) {
+        console.error(error);
+    }
+} //work ok
+
+//get word by wordID
+export async function getWordByID(wordDBid: string | ObjectId) {
+    try {
+        const wordsDB = await WordModel.findOne({ _id: wordDBid}) //bring the word from DB
+        console.log("at getWordByID the wordsDB:", wordsDB)
+        return ({ word: wordsDB })
     } catch (error) {
         console.error(error);
     }

@@ -2,6 +2,7 @@ import mongoose, { Schema, model } from 'mongoose';
 import { UserModel } from '../users/userModel';
 
 export class Word {
+    _id: string;
     en_word: string;
     he_word: string;
 
