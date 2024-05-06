@@ -7,7 +7,7 @@ import { WordModel, WordSchema, Word, UserWordsModel } from "./wordModel";
 //import { getUser } from '../users/userCont';
 import jwt from 'jwt-simple';
 
-//get
+//get all words of all users
 export async function getWords(req: any, res: any) {
     try {
         const wordsDB = await WordModel.find({}) //bring all words from DB
@@ -34,7 +34,7 @@ export async function addWord(req: any, res: any) {
         console.log({ en_word, he_word });  // work
         if (!en_word || !he_word) throw new Error("At wordCont addWord: Please complete all fields");
 
-        //create new word with using mongoos
+        //create new word with using mongoose
         const word = new WordModel({ en_word, he_word });
         console.log("At wordCont addWord word at line 40: ", word)
 
@@ -46,7 +46,7 @@ export async function addWord(req: any, res: any) {
             wordDBid = isWordExist._id
             console.log("At wordCont addWord wordDBid at line 48: ", wordDBid)
         } else {
-            word.save() //save the word in word-DB
+            word.save() //save the new word in word-DB
             wordDBid = word._id
             console.log("At wordCont addWord wordDBid at line 52: ", wordDBid)
         }
@@ -62,8 +62,7 @@ export async function addWord(req: any, res: any) {
             console.log("At wordCont addWord newUserWordDB at line 63: ", newUserWordDB) //--> work
         }
        
-
-        //query the DB to retrive all the user words
+        //query the DB to retrieve all the user words
         const userWords = await UserWordsModel.find({ userId: decodedUserId })  //bring all user-words from DB 
         console.log("At wordCont addWord userWords line 69: ", userWords) 
 
