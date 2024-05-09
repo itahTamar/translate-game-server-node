@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose, { ConnectOptions } from 'mongoose';
 import cookieParser from 'cookie-parser';
+import {addFieldToUsers} from './API/users/updateUserDB'
 
 //npm i dotenv
 import dotenv from 'dotenv';
@@ -24,6 +25,7 @@ const mongodb_uri = process.env.MONGO_URL;
 // connect to mongoDB with mongoose
 mongoose.connect(mongodb_uri).then(() => {
   console.info("MongoDB connected");
+  // addFieldToUsers("role", "user");  //update my user DB with a new field
 })
   .catch(err => {
     console.error(err)
