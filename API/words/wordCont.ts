@@ -70,7 +70,7 @@ export async function addWord(req: any, res: any) {
         //send the new word array to user
         if (userWords === undefined) throw new Error("At wordCont addWord line 63: userWordsArr is undefine or empty ");
 
-        res.send({ words: userWords }); //*till here everything work ok!
+        res.send({ ok: true, words: userWords }); 
 
     } catch (error) {
         console.error(error);

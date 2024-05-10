@@ -7,6 +7,7 @@ At users:
 
 At userWords:
 - getAllUsersWords
+- getXRandomUserWords
 
 At words:
 - getWords

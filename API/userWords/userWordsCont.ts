@@ -53,8 +53,7 @@ export async function getAllUsersWords(req: any, res: any) {
 } //work ok
 
 //get X random words from the user words in the DB
-export async function getUserWordsGili(req: any, res: any) {
-  //work
+export async function getXRandomUserWords(req: any, res: any) {
   try {
     //get user id from cookie
     const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
@@ -81,7 +80,7 @@ export async function getUserWordsGili(req: any, res: any) {
     const userIdMongoose = new ObjectId(decodedUserId);
     const userWordsModel = await UserWordsModel.aggregate([
       { $match: { userId: userIdMongoose } },
-      { $sample: { size: 3 } }, //chang the size to get a different number of words
+      { $sample: { size: 9 } }, //chang the size to get a different number of words
       {
         $lookup: {
           from: "words",
@@ -92,7 +91,7 @@ export async function getUserWordsGili(req: any, res: any) {
       },
     ]);
 
-    res.send({ words: userWordsModel }); //work
+    res.send({ words: userWordsModel }); 
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: error.message });
