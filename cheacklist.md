@@ -12,3 +12,4 @@ At userWords:
 At words:
 - getWords
 - addWord
+- updateWord

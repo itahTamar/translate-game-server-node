@@ -88,66 +88,33 @@ export async function getWordByID(wordDBid: string | ObjectId) {
     }
 } //work ok
 
-//post (add) -> not work
-// export async function updateWord(req: any, res: any) {
-//     try {
-//         //get user id from cookie
-//         const userID: string = req.cookies.user;  //unique id. get the user id from the cookie - its coded!
-//         if (!userID) throw new Error("At WordsCont addWord: userID not found in cookie");
-//         console.log('At addWord the userID from cookies: ', { userID });
 
-//         const secret = process.env.JWT_SECRET;
-//         if (!secret) throw new Error("At userCont getUser: Couldn't load secret from .env");
+export async function updateWord(req: any, res: any) {
+    try {
+        const wordID = req.params.wordID
+        if (!wordID) throw new Error("no word id in query");
+        console.log("at wordCont/updateWord the wordID:", wordID)
+        
+        const {en_word, he_word} = req.body
+        if (!en_word || !he_word) throw new Error("no word in body");
 
-//         const decodedUserId = jwt.decode(userID, secret);
-//         console.log('At userCont getUser the decodedUserId:', decodedUserId)
+        //find the word in DB by word_id
+        const wordExist = await WordModel.findOne({ _id: wordID })
+        if (!wordExist) throw new Error("word not found");
+        
+        //update the existing word with the new data from client
+        wordExist.en_word = en_word
+        wordExist.he_word = he_word
 
-//         const { wrongEnWord, wronginterpretation } = req.body;
-//         console.log({ wrongEnWord, wronginterpretation });  // work
-//         if (!wrongEnWord || !wronginterpretation) throw new Error("At wordCont addWord: Please complete all filds");
+        const updatedWord = await wordExist.save() //save the update in DB
 
-//         //creat new word with using mongoos
-//         const word = new WordModel({ wrongEnWord, wronginterpretation });
-//         console.log("At wordCont addWord word at line 40: ", word)
+        res.send({ok: true, updatedWord})
 
-//         let wordDBid;
-//         //chack if the word exist on word-DB
-//         const isWordExist = await WordModel.findOne({ wrongEnWord: wrongEnWord, wronginterpretation: wronginterpretation })
-//         if (isWordExist) {
-//             console.log("This word alrady exist in word-DB")
-//             wordDBid = isWordExist._id
-//             console.log("At wordCont addWord wordDBid at line 48: ", wordDBid)
-//         } else {
-//             word.save() //save the word in word-DB
-//             wordDBid = word._id
-//             console.log("At wordCont addWord wordDBid at line 52: ", wordDBid)
-//         }
-
-//         //chack if the words alredy in the userWordsDB -> work 
-//         const existingUserWord = await UserWordsModel.findOne({ wordsId: wordDBid, userId: decodedUserId })
-//         if (existingUserWord) throw new Error("At wordCont addWord: the word alredy exist in your DB")
-//         else {
-//             const newUserWordDB = await UserWordsModel.create({
-//                 wordsId: wordDBid,
-//                 userId: decodedUserId
-//             }); // save the new word in the user-word-DB
-//             console.log("At wordCont addWord newUserWordDB at line 63: ", newUserWordDB) //--> work
-//         }
-       
-
-//         //query the DB to retrive all the user words
-//         const userWords = await UserWordsModel.find({ userId: decodedUserId })  //bring all user-words from DB 
-//         console.log("At wordCont addWord userWords line 69: ", userWords) 
-
-//         //send the new word array to user
-//         if (userWords === undefined) throw new Error("At wordCont addWord line 63: userWordsArr is undefine or emty ");
-
-//         res.send({ words: userWords }); //*till here everything work ok!
-
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: error.message });
+    }
+} //work ok
 
 
 //delete --> not work
