@@ -108,7 +108,7 @@ export async function updateWord(req: any, res: any) {
 
         const updatedWord = await wordExist.save() //save the update in DB
 
-        res.send({ok: true, updatedWord})
+        res.send({ok: true, results: updatedWord})
 
     } catch (error) {
         console.error(error);
