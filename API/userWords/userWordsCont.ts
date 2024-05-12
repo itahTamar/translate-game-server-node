@@ -37,13 +37,15 @@ export async function getAllUsersWords(req: any, res: any) {
     );
 
     //need to get the words themselves
-    const allWordData = await Promise.all(allUserWordsIDFromDBs.map(async (el) => {
-      return await getWordByID(el.wordsId);
-    }));
-  console.log(
-    "At userWordsCont getAllUsersWords the allUserWordsFromDBs:",
-    allWordData
-  );
+    const allWordData = await Promise.all(
+      allUserWordsIDFromDBs.map(async (el) => {
+        return await getWordByID(el.wordsId);
+      })
+    );
+    console.log(
+      "At userWordsCont getAllUsersWords the allUserWordsFromDBs:",
+      allWordData
+    );
 
     res.send({ ok: true, words: allWordData });
   } catch (error) {
@@ -91,9 +93,47 @@ export async function getXRandomUserWords(req: any, res: any) {
       },
     ]);
 
-    res.send({ words: userWordsModel }); 
+    res.send({ words: userWordsModel });
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: error.message });
   }
 }
+
+//delete word from user
+export async function deleteUserWord(req: any, res: any) {
+  try {
+    const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
+    if (!userID)
+      throw new Error(
+        "At userWordsCont getUserWords: userID not found in cookie"
+      );
+    console.log("At userWordsCont getUserWords the userID from cookies: ", {
+      userID,
+    });
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret)
+      throw new Error(
+        "At userWordsCont getUserWords: Couldn't load secret from .env"
+      );
+
+    const decodedUserId = jwt.decode(userID, secret);
+    console.log(
+      "At userWordsCont getUserWords the decodedUserId:",
+      decodedUserId
+    );
+
+    const wordID = req.params.wordID;
+    if (!wordID) throw new Error("no word id in params deleteUserWord");
+    console.log("at wordCont/deleteUserWord the wordID:", wordID);
+
+    if (await UserWordsModel.findOneAndDelete({ wordsId: wordID, userId: decodedUserId })){
+      res.send({ ok: true, massage: "the word deleted from user" });
+    } else {
+      res.send({ok: false, massage: "the word not deleted from user"})
+    }
+  } catch (error) {
+    console.error(error, "at wordCont/deleteUserWord delete failed");
+  }
+} //work ok

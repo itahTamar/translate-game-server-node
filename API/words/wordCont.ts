@@ -88,11 +88,10 @@ export async function getWordByID(wordDBid: string | ObjectId) {
     }
 } //work ok
 
-
 export async function updateWord(req: any, res: any) {
     try {
         const wordID = req.params.wordID
-        if (!wordID) throw new Error("no word id in query");
+        if (!wordID) throw new Error("no word id in params updateWord");
         console.log("at wordCont/updateWord the wordID:", wordID)
         
         const {en_word, he_word} = req.body
@@ -116,18 +115,4 @@ export async function updateWord(req: any, res: any) {
     }
 } //work ok
 
-
-//delete --> not work
-//!to renew this fun --> only for admin in the future
-// export async function deleteWord(req: any) {
-//     try {
-//         const { wrongEnWord, wronginterpretation } = req.body;
-//         console.log("At deleteWord the req.body got:",wrongEnWord, wronginterpretation ) //undefined undefined
-//         await WordModel.findOneAndDelete(wrongEnWord, wronginterpretation);
-
-
-//     } catch (error) {
-//         console.error(error);
-//     }
-// }
-
+// delete word from DB (admin only)
