@@ -8,8 +8,10 @@ At users:
 At userWords:
 - getAllUsersWords
 - getXRandomUserWords
+- deleteUserWord
 
 At words:
 - getWords
 - addWord
 - updateWord
+- deleteWordById

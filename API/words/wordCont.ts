@@ -116,3 +116,21 @@ export async function updateWord(req: any, res: any) {
 } //work ok
 
 // delete word from DB (admin only)
+//1. delete the word by id from all user-word-model (no need for userID)
+//2. delete the word by id from word-model
+export async function deleteWordById(req: any, res: any) {
+    try { 
+      const wordID = req.params.wordID;
+      if (!wordID) throw new Error("no word id in params deleteUserWord");
+      console.log("at wordCont/deleteUserWord the wordID:", wordID);
+  
+      if (await UserWordsModel.findOneAndDelete({ wordsId: wordID })){
+        if(await WordModel.findOneAndDelete({ _id: wordID })){
+        res.send({ ok: true, massage: "the word deleted successfully" });
+      }} else {
+        res.send({ok: false, massage: "the word was not deleted"})
+      }
+    } catch (error) {
+      console.error(error, "at wordCont/deleteUserWord delete failed");
+    }
+  }
