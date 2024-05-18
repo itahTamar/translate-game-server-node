@@ -195,5 +195,5 @@ export async function saveUserScore(req: any, res: any) {
   //save the score to user db
   //const userDB = await UserModel.findById(objectId);
     
-  res.send({ ok: true, highScore: userDB.highScore });
+  //res.send({ ok: true, highScore: userDB.highScore });
 }
