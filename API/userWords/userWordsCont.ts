@@ -74,13 +74,12 @@ export async function getXRandomUserWords(req: any, res: any) {
       );
 
     const decodedUserId = jwt.decode(userID, secret);
-    console.log(
-      "At userWordsCont getUserWords the decodedUserId:",
-      decodedUserId
-    );
+    console.log("At userWordsCont getUserWords the decodedUserId:",decodedUserId);
 
     const userIdMongoose = new ObjectId(decodedUserId);
-    const userWordsModel = await UserWordsModel.aggregate([
+    console.log("At userWordsCont getUserWords the userIdMongoose:",userIdMongoose);
+
+    const userWordsList = await UserWordsModel.aggregate([
       { $match: { userId: userIdMongoose } },
       { $sample: { size: 9 } }, //chang the size to get a different number of words
       {
@@ -92,11 +91,14 @@ export async function getXRandomUserWords(req: any, res: any) {
         },
       },
     ]);
+    console.log("At userWordsCont getUserWords the userWordsModel:",userWordsList);
+    const wordList = userWordsList.map((e) => e.word[0])
+    console.log("At userWordsCont getUserWords the wordList:",wordList);
 
-    res.send({ words: userWordsModel });
+    res.send({ok: true, words: wordList });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ok: false, error: error.message });
   }
 }
 

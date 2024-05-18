@@ -172,3 +172,28 @@ export async function getUserHighScore(req: any, res: any) {
   
   res.send({ ok: true, highScore: userDB.highScore });
 }
+
+export async function saveUserScore(req: any, res: any) {
+  const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
+  if (!userID)
+    throw new Error("At userCont/getUserScores: userID not found in cookie");
+  console.log("At userCont/getUserScores the userID from cookies: ", {
+    userID,
+  });
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret)
+    throw new Error(
+      "At userCont/getUserScores: Couldn't load secret from .env"
+    );
+
+  const decodedUserId: number = jwt.decode(userID, secret);
+  console.log("At userCont/getUserScores the decodedUserId:", decodedUserId);
+  const objectId = new mongoose.Types.ObjectId(decodedUserId);
+  console.log("At userCont/getUserScores the objectId:", objectId);
+
+  //save the score to user db
+  //const userDB = await UserModel.findById(objectId);
+    
+  res.send({ ok: true, highScore: userDB.highScore });
+}
