@@ -19,20 +19,23 @@ app.use(cookieParser())
 //body
 app.use(express.json());
 
-//connect to mongoDB with mongoose
-const mongodb_uri = process.env.MONGO_URL;
+import connectionMongo from "./DBConnections/mongodb";
 
-// connect to mongoDB with mongoose
-mongoose.connect(mongodb_uri).then(() => {
-  console.info("MongoDB connected");
-  // addFieldToUsers("role", "user");  //update my user DB with a new field
-})
-  .catch(err => {
-    console.error(err)
-  })
+// //connect to mongoDB with mongoose
+// const mongodb_uri = process.env.MONGO_URL;
+
+// // connect to mongoDB with mongoose
+// mongoose.connect(mongodb_uri).then(() => {
+//   console.info("MongoDB connected");
+//   // addFieldToUsers("role", "user");  //update my user DB with a new field
+// })
+//   .catch(err => {
+//     console.error(err)
+//   })
 
 // get router from usersRouter
 import userRoute from "./API/users/userRoute";
+
 app.use("/api/users", userRoute);
 
 // get router from wordRouter
@@ -43,11 +46,36 @@ app.use("/api/words", wordRoute);
 import userWordsRoute from "./API/userWords/userWordsRoute";
 app.use("/api/userWords", userWordsRoute);
 
-app.use((req, res, next) => {
-  console.log(`Received request: ${req.method} ${req.url}`);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(`Received request: ${req.method} ${req.url}`);
+//   next();
+// });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Example app listening on port ${port}`);
+// });
+
+const connectToMongoDB = async () => {
+  try {
+    await connectionMongo;
+    // console.info("MongoDB connected");
+    // addFieldToUsers("role", "user"); // Update user DB with a new field
+  } catch (err) {
+    console.error(err);
+    process.exit(1); // Exit the process with a non-zero code
+  }
+};
+connectToMongoDB()
+  .then(() => {
+    app.use((req, res, next) => {
+      console.log(`Received request: ${req.method} ${req.url}`);
+      next();
+    });
+
+    app.listen(port, () => {
+      console.log(`Example app listening on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+  });

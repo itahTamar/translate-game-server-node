@@ -4,14 +4,17 @@
 // import mongoose from "mongoose";
 //import { UserWordModel } from "../userWords/userWordsModel";
 import { ObjectId } from "mongodb";
-import { WordModel, WordSchema, Word, UserWordsModel } from "./wordModel";
+import { WordModel, WordSchema, Word, UserWordsModel, IWordDocument } from "./wordModel";
 //import { getUser } from '../users/userCont';
 import jwt from 'jwt-simple';
+import { getAllData } from "../../CRUD/mongoCRUD";
+import { getOneData } from './../../CRUD/mongoCRUD';
 
 //get all words of all users
 export async function getWords(req: any, res: any) {
     try {
-        const wordsDB = await WordModel.find({}) //bring all words from DB
+        console.log("hello from getWords")
+        const wordsDB = await getAllData<IWordDocument>(req, res, WordModel)
         res.send({ words: wordsDB })
     } catch (error) {
         console.error(error);
@@ -41,6 +44,7 @@ export async function addWord(req: any, res: any) {
 
         let wordDBid;
         //check if the word exist on word-DB
+        // const isWordExist = await getOneData<IWordDocument>(req, res, WordModel,{ en_word: en_word, he_word: he_word })
         const isWordExist = await WordModel.findOne({ en_word: en_word, he_word: he_word })
         if (isWordExist) {
             console.log("This word already exist in word-DB")
