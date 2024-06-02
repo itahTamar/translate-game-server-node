@@ -191,20 +191,27 @@ export const getXRandomDataList = async <T extends Document>(
 //update
 export const updateOneData = async <T extends Document>(
   modelName: Model<MyDocument<T>>,
-  item: any
+  filter: any,
+  update: any,
 ) => {
   try {
-    const response = await modelName.findOneAndUpdate({ item });
-    if (response) {
-      return({ ok: true });
+    console.log("at mongoCRUD/updateOneData the modelName", modelName)
+    console.log("at mongoCRUD/updateOneData the filter", filter)
+    console.log("at mongoCRUD/updateOneData the update", update)
+    const response = await modelName.findOneAndUpdate(filter, update, {new: true}); 
+//By default, findOneAndUpdate() returns the document as it was before update was applied.
+//You should set the new option to true to return the document after update was applied
+  if (response) {
+    console.log("at mongoCRUD/updateOneData the response", response)
+    return({ ok: true, response, massage: "The word update successfully" });
     } else {
-      return({ ok: false });
+      return({ ok: false, massage:"The word not exist nor update" });
     }
   } catch (error) {
     console.error(error);
     return({ ok: false, error: error.message });
   }
-};
+};  //work ok
 
 //delete
 //item is uniq
