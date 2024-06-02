@@ -1,7 +1,13 @@
 import jwt from "jwt-simple";
 import { getWordByID } from "../words/wordCont";
 import { UserWordsModel, WordModel } from "./../words/wordModel";
-import { getAllData, getDataByID, getOneData, getXRandomDataList } from "../../CRUD/mongoCRUD";
+import {
+  deleteOneData,
+  getAllData,
+  getDataByID,
+  getOneData,
+  getXRandomDataList,
+} from "../../CRUD/mongoCRUD";
 import { Document, ObjectId } from "mongoose";
 
 var ObjectId = require("mongoose").Types.ObjectId;
@@ -13,7 +19,11 @@ interface UserWordDocument extends Document {
   // Add any other properties you need
 }
 
-function createUserWordDocument(id: string, wordsId: ObjectId, userId: ObjectId): UserWordDocument {
+function createUserWordDocument(
+  id: string,
+  wordsId: ObjectId,
+  userId: ObjectId
+): UserWordDocument {
   const userWordDocument: UserWordDocument = Object.create(
     Object.getPrototypeOf({})
   );
@@ -51,24 +61,48 @@ export async function getAllUsersWords(req: any, res: any) {
     ); //work ok
 
     // const allUserWordsIDFromDBs = await UserWordsModel.find({userId: decodedUserId}); //get all users word into array of objects with the id of the words not the words themselves
-    const userWordDocResult = await getAllData<UserWordDocument>(req, res, UserWordsModel, {userId: decodedUserId});
+    const userWordDocResult = await getAllData<UserWordDocument>(
+      req,
+      res,
+      UserWordsModel,
+      { userId: decodedUserId }
+    );
     if (!userWordDocResult.ok) throw new Error(userWordDocResult.error);
-    console.log("At userWordsCont getAllUsersWords the userWordDocResult:", userWordDocResult);
+    console.log(
+      "At userWordsCont getAllUsersWords the userWordDocResult:",
+      userWordDocResult
+    );
 
-//@ts-ignore
-    const userWordArray1: UserWordDocument[] = userWordDocResult.response
-    console.log("At userWordsCont getAllUsersWords the userWordArray1:", userWordArray1);
+    //@ts-ignore
+    const userWordArray1: UserWordDocument[] = userWordDocResult.response;
+    console.log(
+      "At userWordsCont getAllUsersWords the userWordArray1:",
+      userWordArray1
+    );
 
-    const allUserWordsArray = await userWordArray1.map((e) => getDataByID(WordModel, e.wordsId))
-    console.log("At userWordsCont getAllUsersWords the allUserWordsArray:", allUserWordsArray);
+    const allUserWordsArray = await userWordArray1.map((e) =>
+      getDataByID(WordModel, e.wordsId)
+    );
+    console.log(
+      "At userWordsCont getAllUsersWords the allUserWordsArray:",
+      allUserWordsArray
+    );
 
-    const allUserWordsData = await Promise.all(allUserWordsArray.map(async (promise) => await promise));
-    console.log("At userWordsCont getAllUsersWords the allUserWordsData:", allUserWordsData);
+    const allUserWordsData = await Promise.all(
+      allUserWordsArray.map(async (promise) => await promise)
+    );
+    console.log(
+      "At userWordsCont getAllUsersWords the allUserWordsData:",
+      allUserWordsData
+    );
 
-    const extractedResponses  = allUserWordsData.map((e)=> e.response)
-    console.log("At userWordsCont getAllUsersWords the response:", extractedResponses );
-    
-    res.send({ ok: true, words: extractedResponses  });
+    const extractedResponses = allUserWordsData.map((e) => e.response);
+    console.log(
+      "At userWordsCont getAllUsersWords the response:",
+      extractedResponses
+    );
+
+    res.send({ ok: true, words: extractedResponses });
     // res.send({ ok: true, words: allUserWordsArray});
   } catch (error) {
     console.error(error);
@@ -85,9 +119,12 @@ export async function getXRandomUserWords(req: any, res: any) {
       throw new Error(
         "At userWordsCont/getXRandomUserWords: userID not found in cookie"
       );
-    console.log("At userWordsCont/getXRandomUserWords the userID from cookies: ", {
-      userID,
-    });
+    console.log(
+      "At userWordsCont/getXRandomUserWords the userID from cookies: ",
+      {
+        userID,
+      }
+    );
 
     const secret = process.env.JWT_SECRET;
     if (!secret)
@@ -107,11 +144,26 @@ export async function getXRandomUserWords(req: any, res: any) {
       userIdMongoose
     );
 
-    const userWordsListResult = await getXRandomDataList(UserWordsModel, "userId", userIdMongoose, 3, "words", "wordsId", "_id", "word")
-    console.log("At userWordsCont/getXRandomUserWords the userWordsListResult:",userWordsListResult);
+    const userWordsListResult = await getXRandomDataList(
+      UserWordsModel,
+      "userId",
+      userIdMongoose,
+      3,
+      "words",
+      "wordsId",
+      "_id",
+      "word"
+    );
+    console.log(
+      "At userWordsCont/getXRandomUserWords the userWordsListResult:",
+      userWordsListResult
+    );
 
-const userWordsList = userWordsListResult.response
-console.log("At userWordsCont/getXRandomUserWords the userWordsList:",userWordsList);
+    const userWordsList = userWordsListResult.response;
+    console.log(
+      "At userWordsCont/getXRandomUserWords the userWordsList:",
+      userWordsList
+    );
 
     const wordList = userWordsList.map((e) => e.word[0]);
     console.log("At userWordsCont/getXRandomUserWords the wordList:", wordList);
@@ -152,7 +204,7 @@ export async function deleteUserWord(req: any, res: any) {
     console.log("at wordCont/deleteUserWord the wordID:", wordID);
 
     if (
-      await UserWordsModel.findOneAndDelete({
+      await deleteOneData(UserWordsModel, {
         wordsId: wordID,
         userId: decodedUserId,
       })

@@ -190,41 +190,37 @@ export const getXRandomDataList = async <T extends Document>(
 
 //update
 export const updateOneData = async <T extends Document>(
-  req: any,
-  res: any,
   modelName: Model<MyDocument<T>>,
   item: any
 ) => {
   try {
     const response = await modelName.findOneAndUpdate({ item });
     if (response) {
-      res.send({ ok: true });
+      return({ ok: true });
     } else {
-      res.send({ ok: false });
+      return({ ok: false });
     }
   } catch (error) {
     console.error(error);
-    res.send({ ok: false, error: error.message });
+    return({ ok: false, error: error.message });
   }
 };
 
 //delete
 //item is uniq
 export const deleteOneData = async <T extends Document>(
-  req: any,
-  res: any,
   modelName: Model<MyDocument<T>>,
   item: any
 ) => {
   try {
     const response = await modelName.findOneAndDelete({ item });
     if (response) {
-      res.send({ ok: true });
+      return({ ok: true });
     } else {
-      res.send({ ok: false });
+      return({ ok: false });
     }
   } catch (error) {
     console.error(error);
-    res.send({ ok: false, error: error.message });
+    return({ ok: false, error: error.message });
   }
-};
+}; //work ok
