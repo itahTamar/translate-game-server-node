@@ -1,9 +1,31 @@
 import jwt from "jwt-simple";
-import { WordModel, UserWordsModel, Word } from "./../words/wordModel";
-import { forEach } from "lodash";
 import { getWordByID } from "../words/wordCont";
+import { UserWordsModel, WordModel } from "./../words/wordModel";
+import { getAllData, getDataByID, getOneData } from "../../CRUD/mongoCRUD";
+import { Document, ObjectId } from "mongoose";
+
 var ObjectId = require("mongoose").Types.ObjectId;
 
+interface UserWordDocument extends Document {
+  id: string;
+  wordsId: ObjectId;
+  userId: ObjectId;
+  // Add any other properties you need
+}
+
+function createUserWordDocument(id: string, wordsId: ObjectId, userId: ObjectId): UserWordDocument {
+  const userWordDocument: UserWordDocument = Object.create(
+    Object.getPrototypeOf({})
+  );
+  Object.defineProperties(userWordDocument, {
+    id: { value: id, enumerable: true },
+    wordsId: { value: wordsId, enumerable: true },
+    userId: { value: userId, enumerable: true },
+    // Define any other properties you need
+  });
+  return userWordDocument;
+}
+//!
 export async function getAllUsersWords(req: any, res: any) {
   try {
     //get user id from cookie
@@ -14,7 +36,7 @@ export async function getAllUsersWords(req: any, res: any) {
       );
     console.log("At userWordsCont getUserWords the userID from cookies: ", {
       userID,
-    });
+    }); //work ok
 
     const secret = process.env.JWT_SECRET;
     if (!secret)
@@ -26,28 +48,37 @@ export async function getAllUsersWords(req: any, res: any) {
     console.log(
       "At userWordsCont getAllUsersWords the decodedUserId:",
       decodedUserId
-    );
+    ); //work ok
 
-    const allUserWordsIDFromDBs = await UserWordsModel.find({
-      userId: decodedUserId,
-    }); //get all users word into array of objects with the id of the words not the words themselves
-    console.log(
-      "At userWordsCont getAllUsersWords the allUserWordsFromDBs:",
-      allUserWordsIDFromDBs
-    );
+    // const allUserWordsIDFromDBs = await UserWordsModel.find({userId: decodedUserId}); //get all users word into array of objects with the id of the words not the words themselves
+    const userWordDocResult = await getAllData<UserWordDocument>(req, res, UserWordsModel, {userId: decodedUserId});
+    if (!userWordDocResult.ok) throw new Error(userWordDocResult.error);
+    console.log("At userWordsCont getAllUsersWords the userWordDocResult:", userWordDocResult);
 
-    //need to get the words themselves
-    const allWordData = await Promise.all(
-      allUserWordsIDFromDBs.map(async (el) => {
-        return await getWordByID(el.wordsId);
-      })
-    );
-    console.log(
-      "At userWordsCont getAllUsersWords the allUserWordsFromDBs:",
-      allWordData
-    );
+//@ts-ignore
+    const userWordArray1: UserWordDocument[] = userWordDocResult.response
+    console.log("At userWordsCont getAllUsersWords the userWordArray1:", userWordArray1);
 
-    res.send({ ok: true, words: allWordData });
+    const allUserWordsArray = await userWordArray1.map((e) => getDataByID(WordModel, e.wordsId))
+    console.log("At userWordsCont getAllUsersWords the allUserWordsArray:", allUserWordsArray);
+
+    // const userWordArray = userWordDocResult.response //work. got all the userWords[]
+    // const userWordArray: UserWordDocument[] = userWordArray1.map((doc) =>
+    //   createUserWordDocument(doc._id.toString(), doc.wordsId, doc.userId)
+    // );
+    
+    // console.log("At userWordsCont getAllUsersWords the userWordArray:", userWordArray);
+
+    // const allUserWordsArray = await userWordArray.map((e) => getDataByID(WordModel, e.wordsId))
+    // console.log("At userWordsCont getAllUsersWords the allUserWordsArray:", allUserWordsArray);
+    const allUserWordsData = await Promise.all(allUserWordsArray.map(async (promise) => await promise));
+    console.log("At userWordsCont getAllUsersWords the allUserWordsData:", allUserWordsData);
+
+    const extractedResponses  = allUserWordsData.map((e)=> e.response)
+    console.log("At userWordsCont getAllUsersWords the response:", extractedResponses );
+    
+    res.send({ ok: true, words: extractedResponses  });
+    // res.send({ ok: true, words: allUserWordsArray});
   } catch (error) {
     console.error(error);
     res.status(500).send({ ok: false, error: error.message });
@@ -74,10 +105,16 @@ export async function getXRandomUserWords(req: any, res: any) {
       );
 
     const decodedUserId = jwt.decode(userID, secret);
-    console.log("At userWordsCont getUserWords the decodedUserId:",decodedUserId);
+    console.log(
+      "At userWordsCont getUserWords the decodedUserId:",
+      decodedUserId
+    );
 
     const userIdMongoose = new ObjectId(decodedUserId);
-    console.log("At userWordsCont getUserWords the userIdMongoose:",userIdMongoose);
+    console.log(
+      "At userWordsCont getUserWords the userIdMongoose:",
+      userIdMongoose
+    );
 
     const userWordsList = await UserWordsModel.aggregate([
       { $match: { userId: userIdMongoose } },
@@ -91,14 +128,17 @@ export async function getXRandomUserWords(req: any, res: any) {
         },
       },
     ]);
-    console.log("At userWordsCont getUserWords the userWordsModel:",userWordsList);
-    const wordList = userWordsList.map((e) => e.word[0])
-    console.log("At userWordsCont getUserWords the wordList:",wordList);
+    console.log(
+      "At userWordsCont getUserWords the userWordsModel:",
+      userWordsList
+    );
+    const wordList = userWordsList.map((e) => e.word[0]);
+    console.log("At userWordsCont getUserWords the wordList:", wordList);
 
-    res.send({ok: true, words: wordList });
+    res.send({ ok: true, words: wordList });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ok: false, error: error.message });
+    res.status(500).send({ ok: false, error: error.message });
   }
 }
 
@@ -130,10 +170,15 @@ export async function deleteUserWord(req: any, res: any) {
     if (!wordID) throw new Error("no word id in params deleteUserWord");
     console.log("at wordCont/deleteUserWord the wordID:", wordID);
 
-    if (await UserWordsModel.findOneAndDelete({ wordsId: wordID, userId: decodedUserId })){
+    if (
+      await UserWordsModel.findOneAndDelete({
+        wordsId: wordID,
+        userId: decodedUserId,
+      })
+    ) {
       res.send({ ok: true, massage: "the word deleted from user" });
     } else {
-      res.send({ok: false, massage: "the word not deleted from user"})
+      res.send({ ok: false, massage: "the word not deleted from user" });
     }
   } catch (error) {
     console.error(error, "at wordCont/deleteUserWord delete failed");
