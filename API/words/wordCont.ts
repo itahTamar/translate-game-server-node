@@ -96,47 +96,20 @@ export async function addWord(req: any, res: any) {
   }
 } //work ok
 
-//get one word by wordID
-//!
-export async function getWordByID(wordDBid: string | ObjectId) {
-  try {
-    // const wordsDB = await getDataByID(WordModel,{ _id: wordDBid }); //bring the word from DB
-    const wordsDB = await WordModel.findOne({ _id: wordDBid }); //bring the word from DB
-    console.log("at getWordByID the wordsDB:", wordsDB);
-    return { word: wordsDB };
-  } catch (error) {
-    console.error(error);
-  }
-} //update thw word in words.db (wil update for all users using this word)
-// export async function updateWord(req: any, res: any) {
+//!get one word by wordID - not use
+// export async function getWordByID(wordDBid: string | ObjectId) {
 //   try {
-//     const wordID = req.params.wordID;
-//     if (!wordID) throw new Error("no word id in params updateWord");
-//     console.log("at wordCont/updateWord the wordID:", wordID);
-
-//     const { en_word, he_word } = req.body;
-//     if (!en_word || !he_word) throw new Error("no word in body");
-
-//     //find the word in DB by word_id
-//     const wordExist = await WordModel.findOne({ _id: wordID });
-//     if (!wordExist) throw new Error("word not found");
-
-//     //update the existing word with the new data from client
-//     wordExist.en_word = en_word;
-//     wordExist.he_word = he_word;
-
-//     const updatedWord = await wordExist.save(); //save the update in DB
-
-//     res.send({ ok: true, results: updatedWord });
+//     // const wordDB = await getDataByID(WordModel, wordDBid); //bring the word from DB
+//     const wordDB = await WordModel.findOne({ _id: wordDBid }); //bring the word from DB
+//     console.log("at getWordByID the wordDB:", wordDB);
+//     return { word: wordDB };
 //   } catch (error) {
 //     console.error(error);
-//     res.status(500).send({ error: error.message });
 //   }
-// } //work ok
+// } 
 
-// delete word from DB (admin only)
-//1. delete the word by id from all user-word-model (no need for userID)
-//2. delete the word by id from word-model
+
+//update thw word in words.db (wil update for all users using this word)
 export async function updateWord(req: any, res: any) {
   try {
     const wordID = req.params.wordID;
@@ -168,20 +141,23 @@ export async function updateWord(req: any, res: any) {
   }
 } //work ok
 
-export async function deleteWordById(req: any, res: any) {
-  try {
-    const wordID = req.params.wordID;
-    if (!wordID) throw new Error("no word id in params deleteUserWord");
-    console.log("at wordCont/deleteUserWord the wordID:", wordID);
+//! delete word from all DB (admin only) - not use yet
+//1. delete the word by id from all user-word-model (no need for userID)
+//2. delete the word by id from word-model
+// export async function deleteWordById(req: any, res: any) {
+//   try {
+//     const wordID = req.params.wordID;
+//     if (!wordID) throw new Error("no word id in params deleteUserWord");
+//     console.log("at wordCont/deleteUserWord the wordID:", wordID);
 
-    if (await UserWordsModel.findOneAndDelete({ wordsId: wordID })) {
-      if (await WordModel.findOneAndDelete({ _id: wordID })) {
-        res.send({ ok: true, massage: "the word deleted successfully" });
-      }
-    } else {
-      res.send({ ok: false, massage: "the word was not deleted" });
-    }
-  } catch (error) {
-    console.error(error, "at wordCont/deleteUserWord delete failed");
-  }
-}
+//     if (await UserWordsModel.findOneAndDelete({ wordsId: wordID })) {
+//       if (await WordModel.findOneAndDelete({ _id: wordID })) {
+//         res.send({ ok: true, massage: "the word deleted successfully" });
+//       }
+//     } else {
+//       res.send({ ok: false, massage: "the word was not deleted" });
+//     }
+//   } catch (error) {
+//     console.error(error, "at wordCont/deleteUserWord delete failed");
+//   }
+// }

@@ -1,14 +1,12 @@
 import jwt from "jwt-simple";
-import { getWordByID } from "../words/wordCont";
-import { UserWordsModel, WordModel } from "./../words/wordModel";
+import { Document, ObjectId } from "mongoose";
 import {
   deleteOneData,
   getAllData,
   getDataByID,
-  getOneData,
-  getXRandomDataList,
+  getXRandomDataList
 } from "../../CRUD/mongoCRUD";
-import { Document, ObjectId } from "mongoose";
+import { UserWordsModel, WordModel } from "./../words/wordModel";
 
 var ObjectId = require("mongoose").Types.ObjectId;
 
@@ -19,22 +17,22 @@ interface UserWordDocument extends Document {
   // Add any other properties you need
 }
 
-function createUserWordDocument(
-  id: string,
-  wordsId: ObjectId,
-  userId: ObjectId
-): UserWordDocument {
-  const userWordDocument: UserWordDocument = Object.create(
-    Object.getPrototypeOf({})
-  );
-  Object.defineProperties(userWordDocument, {
-    id: { value: id, enumerable: true },
-    wordsId: { value: wordsId, enumerable: true },
-    userId: { value: userId, enumerable: true },
-    // Define any other properties you need
-  });
-  return userWordDocument;
-}
+// function createUserWordDocument(
+//   id: string,
+//   wordsId: ObjectId,
+//   userId: ObjectId
+// ): UserWordDocument {
+//   const userWordDocument: UserWordDocument = Object.create(
+//     Object.getPrototypeOf({})
+//   );
+//   Object.defineProperties(userWordDocument, {
+//     id: { value: id, enumerable: true },
+//     wordsId: { value: wordsId, enumerable: true },
+//     userId: { value: userId, enumerable: true },
+//     // Define any other properties you need
+//   });
+//   return userWordDocument;
+// }
 
 export async function getAllUsersWords(req: any, res: any) {
   try {
