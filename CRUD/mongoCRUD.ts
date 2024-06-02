@@ -10,7 +10,7 @@ export interface JoinDocument {
 interface MyDocument<T extends Document> extends Document<any, any, T> {}
 
 //create
-export const saveData = async (req: any, res: any, modelName) => {
+export const saveData = async (modelName) => {
   try {
     const response = await modelName.save();
     console.log("at mongoCRUD/saveData the response is:", response);

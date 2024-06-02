@@ -47,7 +47,7 @@ export async function addWord(req: any, res: any) {
       console.log("At wordCont/addWord wordDBid:", wordDBid);
     } else {
       //save the new word in word-DB
-      const ok = saveData(req, res, word); //work ok
+      const ok = saveData(word); //work ok
       if (!ok) throw new Error("at addWord Fails to save the word in word-db");
       wordDBid = word._id;
       console.log("At wordCont/addWord wordDBid:", wordDBid);
