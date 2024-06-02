@@ -1,7 +1,7 @@
 import jwt from "jwt-simple";
 import { getWordByID } from "../words/wordCont";
 import { UserWordsModel, WordModel } from "./../words/wordModel";
-import { getAllData, getDataByID, getOneData } from "../../CRUD/mongoCRUD";
+import { getAllData, getDataByID, getOneData, getXRandomDataList } from "../../CRUD/mongoCRUD";
 import { Document, ObjectId } from "mongoose";
 
 var ObjectId = require("mongoose").Types.ObjectId;
@@ -25,7 +25,7 @@ function createUserWordDocument(id: string, wordsId: ObjectId, userId: ObjectId)
   });
   return userWordDocument;
 }
-//!
+
 export async function getAllUsersWords(req: any, res: any) {
   try {
     //get user id from cookie
@@ -62,15 +62,6 @@ export async function getAllUsersWords(req: any, res: any) {
     const allUserWordsArray = await userWordArray1.map((e) => getDataByID(WordModel, e.wordsId))
     console.log("At userWordsCont getAllUsersWords the allUserWordsArray:", allUserWordsArray);
 
-    // const userWordArray = userWordDocResult.response //work. got all the userWords[]
-    // const userWordArray: UserWordDocument[] = userWordArray1.map((doc) =>
-    //   createUserWordDocument(doc._id.toString(), doc.wordsId, doc.userId)
-    // );
-    
-    // console.log("At userWordsCont getAllUsersWords the userWordArray:", userWordArray);
-
-    // const allUserWordsArray = await userWordArray.map((e) => getDataByID(WordModel, e.wordsId))
-    // console.log("At userWordsCont getAllUsersWords the allUserWordsArray:", allUserWordsArray);
     const allUserWordsData = await Promise.all(allUserWordsArray.map(async (promise) => await promise));
     console.log("At userWordsCont getAllUsersWords the allUserWordsData:", allUserWordsData);
 
@@ -92,55 +83,45 @@ export async function getXRandomUserWords(req: any, res: any) {
     const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
     if (!userID)
       throw new Error(
-        "At userWordsCont getUserWords: userID not found in cookie"
+        "At userWordsCont/getXRandomUserWords: userID not found in cookie"
       );
-    console.log("At userWordsCont getUserWords the userID from cookies: ", {
+    console.log("At userWordsCont/getXRandomUserWords the userID from cookies: ", {
       userID,
     });
 
     const secret = process.env.JWT_SECRET;
     if (!secret)
       throw new Error(
-        "At userWordsCont getUserWords: Couldn't load secret from .env"
+        "At userWordsCont/getXRandomUserWords: Couldn't load secret from .env"
       );
 
     const decodedUserId = jwt.decode(userID, secret);
     console.log(
-      "At userWordsCont getUserWords the decodedUserId:",
+      "At userWordsCont/getXRandomUserWords the decodedUserId:",
       decodedUserId
     );
 
     const userIdMongoose = new ObjectId(decodedUserId);
     console.log(
-      "At userWordsCont getUserWords the userIdMongoose:",
+      "At userWordsCont/getXRandomUserWords the userIdMongoose:",
       userIdMongoose
     );
 
-    const userWordsList = await UserWordsModel.aggregate([
-      { $match: { userId: userIdMongoose } },
-      { $sample: { size: 9 } }, //chang the size to get a different number of words
-      {
-        $lookup: {
-          from: "words",
-          localField: "wordsId",
-          foreignField: "_id",
-          as: "word",
-        },
-      },
-    ]);
-    console.log(
-      "At userWordsCont getUserWords the userWordsModel:",
-      userWordsList
-    );
+    const userWordsListResult = await getXRandomDataList(UserWordsModel, "userId", userIdMongoose, 3, "words", "wordsId", "_id", "word")
+    console.log("At userWordsCont/getXRandomUserWords the userWordsListResult:",userWordsListResult);
+
+const userWordsList = userWordsListResult.response
+console.log("At userWordsCont/getXRandomUserWords the userWordsList:",userWordsList);
+
     const wordList = userWordsList.map((e) => e.word[0]);
-    console.log("At userWordsCont getUserWords the wordList:", wordList);
+    console.log("At userWordsCont/getXRandomUserWords the wordList:", wordList);
 
     res.send({ ok: true, words: wordList });
   } catch (error) {
     console.error(error);
     res.status(500).send({ ok: false, error: error.message });
   }
-}
+} //work ok
 
 //delete word from user
 export async function deleteUserWord(req: any, res: any) {

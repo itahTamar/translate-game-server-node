@@ -126,13 +126,10 @@ export const getOneData = async <T extends Document>(
 export const getDataByID = async <T extends Document>(
   modelName: Model<MyDocument<T>>,
   filterCriteria: ObjectId | string
-  // filterCriteria: Record<string, any>
-  // item: any
 ) => {
   try {
     console.log("at mongoCRUD/getDataByID the modelName:", modelName)
     console.log("at mongoCRUD/getDataByID the filterCriteria:", filterCriteria)
-    // const response = await modelName.findById({ item });
     const response = await modelName.findById(filterCriteria);
     console.log("at mongoCRUD/getDataByID the response is:", response);
     if (response) {
@@ -144,15 +141,13 @@ export const getDataByID = async <T extends Document>(
     console.error(error);
     return { ok: false, error: error.message };
   }
-};
+}; //work ok
 
 //read - get a list of items by field (aggregate)
 export const getXRandomDataList = async <T extends Document>(
-  req: any,
-  res: any,
   modelName: Model<MyDocument<T>>,
   modelId: string,
-  IdMongoose: string,
+  IdMongoose: any,
   listLength: number,
   dbName: string,
   localFieldName: string,
@@ -160,8 +155,17 @@ export const getXRandomDataList = async <T extends Document>(
   itemName: string
 ) => {
   try {
+    console.log("at mongoCRUD/getDataByID the modelName:", modelName)
+    console.log("at mongoCRUD/getDataByID the modelId:", modelId)
+    console.log("at mongoCRUD/getDataByID the IdMongoose:", IdMongoose)
+    console.log("at mongoCRUD/getDataByID the listLength:", listLength)
+    console.log("at mongoCRUD/getDataByID the dbName:", dbName)
+    console.log("at mongoCRUD/getDataByID the localFieldName:", localFieldName)
+    console.log("at mongoCRUD/getDataByID the foreignFieldName:", foreignFieldName)
+    console.log("at mongoCRUD/getDataByID the itemName:", itemName)
+
     const response = await modelName.aggregate([
-      { $match: { modelId: IdMongoose } },
+      { $match: { [modelId]: IdMongoose } },
       { $sample: { size: listLength } },
       {
         $lookup: {
@@ -173,15 +177,16 @@ export const getXRandomDataList = async <T extends Document>(
       },
     ]);
     if (response) {
-      res.send({ ok: true, response });
+      console.log("at mongoCRUD/getXRandomDataList the response:",response)
+      return({ ok: true, response });
     } else {
-      res.send({ ok: false });
+      return({ ok: false });
     }
   } catch (error) {
     console.error(error);
-    res.send({ ok: false, error: error.message });
+    return({ ok: false, error: error.message });
   }
-};
+}; //work ok
 
 //update
 export const updateOneData = async <T extends Document>(

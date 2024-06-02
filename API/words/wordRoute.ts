@@ -1,5 +1,5 @@
 import express from 'express';
-import { addWord, deleteWordById, getWordByID, getWords, updateWord } from './wordCont';
+import { addWord, deleteWordById, getWords, updateWord } from './wordCont';
 
 const router = express.Router();
 

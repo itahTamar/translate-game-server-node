@@ -7,6 +7,7 @@ const router = express.Router();
 router
 .get('/getXRandomUserWords', getXRandomUserWords)
 .get('/getAllUsersWords', getAllUsersWords)
+.get('/random-words', getXRandomUserWords)
 .delete('/deleteUserWord/:wordID', deleteUserWord)
 
 export default router;
