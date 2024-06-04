@@ -26,8 +26,8 @@ export const saveDataToMongoDB = async (data: any) => {
 //only for join collection
 export const createAndSaveDataToMongoDB = async <T extends MyDocument<IUserWordDoc>>(
   modelName: Model<MyJoinCollection<T>>,
-  item1IdName: string, // name of library 1
-  item2IdName: string, // name of library 2
+  library1Name: string, // name of library 1
+  library2Name: string, // name of library 2
   item1ID: ObjectId, // object from library 1
   item2ID: ObjectId // object from library 2
 ) => {
@@ -35,16 +35,16 @@ export const createAndSaveDataToMongoDB = async <T extends MyDocument<IUserWordD
     console.log("at mongoCRUD/createAndSaveData the item1ID is:", item1ID);
     console.log("at mongoCRUD/createAndSaveData the item2ID is:", item2ID);
     console.log("at mongoCRUD/createAndSaveData the modelName is:", modelName);
-    console.log("at mongoCRUD/createAndSaveData the item1IdName is:", item1IdName );
-    console.log("at mongoCRUD/createAndSaveData the item2IdName is:", item2IdName );
+    console.log("at mongoCRUD/createAndSaveData the item1IdName is:", library1Name );
+    console.log("at mongoCRUD/createAndSaveData the item2IdName is:", library2Name );
 
     if (!item1ID || !item2ID) {
       throw new Error("Invalid item1ID or item2ID");
     }
 
     const newJoinData = await modelName.create({
-      [item1IdName]: item1ID,
-      [item2IdName]: item2ID,
+      [library1Name]: item1ID,
+      [library2Name]: item2ID,
     }); // save the new join in the join-DB
     console.log(
       "at mongoCRUD/createAndSaveData the newJoinData is:",
