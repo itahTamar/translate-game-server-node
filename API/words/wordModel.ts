@@ -1,6 +1,5 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Document, Model, Schema, model } from "mongoose";
 import { UserModel } from "../users/userModel";
-import { Document, Model } from "mongoose";
 // import { MyJoinCollection } from "../../CRUD/mongoCRUD";
 import { ObjectId } from "mongodb";
 export interface IWordDocument extends Document {

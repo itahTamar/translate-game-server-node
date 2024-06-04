@@ -1,6 +1,5 @@
 // import { Results } from "../DBConnections/interfaces";
 // // import connectionMySql from "../DBConnections/mySQL";
-
 // //create
 // export const saveData = async (req: any, res: any, schemaName, data: any) => {
 //     const query = `INSERT INTO ${schemaName} ${data} VALUES ('${data}');`;
@@ -20,3 +19,4 @@
 //       }
 //     });
 // }
+//# sourceMappingURL=mySqlCRUD.js.map

@@ -1,14 +1,13 @@
-import { ObjectId } from "mongodb";
-import { IWordDocument, UserWordsModel, WordModel } from "./wordModel";
 import jwt from "jwt-simple";
-import { createAndSaveData, getAllData, getDataByID, saveData, updateOneData } from "../../CRUD/mongoCRUD";
-import { getOneData } from "./../../CRUD/mongoCRUD";
+import { createAndSaveDataToMongoDB, getAllDataFromMongoDB, saveDataToMongoDB, updateOneDataOnMongoDB, getOneDataFromMongoDBByID } from "../../CRUD/mongoCRUD";
+import { getOneDataFromMongoDB } from "./../../CRUD/mongoCRUD";
+import { IWordDocument, UserWordsModel, WordModel } from "./wordModel";
 
 //get all words of all users
 export async function getWords(req: any, res: any) {
   try {
     console.log("hello from getWords");
-    const wordsDB = await getAllData<IWordDocument>(req, res, WordModel);
+    const wordsDB = await getAllDataFromMongoDB<IWordDocument>(WordModel);
     res.send({ words: wordsDB });
   } catch (error) {
     console.error(error);
@@ -36,7 +35,7 @@ export async function addWord(req: any, res: any) {
     console.log("At wordCont addWord word:", word); //work ok
     let wordDBid;
     //check if the word exist on word-DB
-    const isWordExist = await getOneData<IWordDocument>(req, res, WordModel, {
+    const isWordExist = await getOneDataFromMongoDB<IWordDocument>(WordModel, {
       en_word: en_word,
       he_word: he_word,
     });
@@ -47,27 +46,23 @@ export async function addWord(req: any, res: any) {
       console.log("At wordCont/addWord wordDBid:", wordDBid);
     } else {
       //save the new word in word-DB
-      const ok = saveData(word); //work ok
+      const ok = saveDataToMongoDB(word); //work ok
       if (!ok) throw new Error("at addWord Fails to save the word in word-db");
       wordDBid = word._id;
       console.log("At wordCont/addWord wordDBid:", wordDBid);
     }
     //check if the words already in the userWordsDB -> work
-    const existingUserWord = await getOneData<IWordDocument>(
-      req,
-      res,
-      UserWordsModel,
-      { wordsId: wordDBid, userId: decodedUserId }
-    );
+    const existingUserWord = await getOneDataFromMongoDBByID<IWordDocument>(
+      UserWordsModel, 
+  //@ts-ignore
+      { wordsId: wordDBid, userId: decodedUserId });
     console.log("At wordCont/addWord existingUserWord:", existingUserWord);
     let message;
     if (existingUserWord.ok) {
       console.log("At wordCont addWord: the word already exist in your DB");
       message = "the word already exist in your vocabulary";
     } else {
-      const newUserWordDB = await createAndSaveData(
-        req,
-        res,
+      const newUserWordDB = await createAndSaveDataToMongoDB(
         UserWordsModel,
         "wordsId",
         "userId",
@@ -78,9 +73,7 @@ export async function addWord(req: any, res: any) {
       message = "the word was successfully saved";
     }
     //query the DB to retrieve all the user words
-    const userWords = await getAllData<IWordDocument>(
-      req,
-      res,
+    const userWords = await getAllDataFromMongoDB<IWordDocument>(
       UserWordsModel,
       { userId: decodedUserId }
     ); //bring all user-words from DB
@@ -122,7 +115,7 @@ export async function updateWord(req: any, res: any) {
     const updateWordData = {en_word, he_word}
 
     //find the word in DB by word_id and update
-    const wordExistAndUpdate = await updateOneData(WordModel, { _id: wordID }, updateWordData)
+    const wordExistAndUpdate = await updateOneDataOnMongoDB(WordModel, { _id: wordID }, updateWordData)
     console.log("at wordCont/updateWord the wordExistAndUpdate", wordExistAndUpdate)
       res.send(wordExistAndUpdate);
       //at wordCont/updateWord the wordExistAndUpdate {

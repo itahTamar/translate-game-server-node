@@ -1,9 +1,9 @@
 import jwt from "jwt-simple";
 import { Document, ObjectId } from "mongoose";
 import {
-  deleteOneData,
-  getAllData,
-  getDataByID,
+  deleteOneDataFromMongoDB,
+  getAllDataFromMongoDB,
+  getOneDataFromMongoDBByID,
   getXRandomDataList
 } from "../../CRUD/mongoCRUD";
 import { UserWordsModel, WordModel } from "./../words/wordModel";
@@ -59,9 +59,7 @@ export async function getAllUsersWords(req: any, res: any) {
     ); //work ok
 
     // const allUserWordsIDFromDBs = await UserWordsModel.find({userId: decodedUserId}); //get all users word into array of objects with the id of the words not the words themselves
-    const userWordDocResult = await getAllData<UserWordDocument>(
-      req,
-      res,
+    const userWordDocResult = await getAllDataFromMongoDB<UserWordDocument>(
       UserWordsModel,
       { userId: decodedUserId }
     );
@@ -79,7 +77,7 @@ export async function getAllUsersWords(req: any, res: any) {
     );
 
     const allUserWordsArray = await userWordArray1.map((e) =>
-      getDataByID(WordModel, e.wordsId)
+      getOneDataFromMongoDBByID(WordModel, e.wordsId)
     );
     console.log(
       "At userWordsCont getAllUsersWords the allUserWordsArray:",
@@ -202,7 +200,7 @@ export async function deleteUserWord(req: any, res: any) {
     console.log("at wordCont/deleteUserWord the wordID:", wordID);
 
     if (
-      await deleteOneData(UserWordsModel, {
+      await deleteOneDataFromMongoDB(UserWordsModel, {
         wordsId: wordID,
         userId: decodedUserId,
       })

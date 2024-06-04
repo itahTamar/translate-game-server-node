@@ -1,7 +1,5 @@
 // import mysql from "mysql2"
-
 // const sqlPassword = process.env.SQLPASSWORD;
-
 // const connectionMySql = mysql.createConnection({
 //     host: "localhost",
 //     port: 3306,
@@ -9,7 +7,6 @@
 //     password: sqlPassword,
 //     database: ""            //add the name of the database in the project 
 // })
-
 // connectionMySql.connect((err) => {
 //     try {
 //         if (err) throw err;
@@ -18,5 +15,5 @@
 //         console.error(error)
 //     }
 // })
-
 // export default connectionMySql
+//# sourceMappingURL=mySQL.js.map

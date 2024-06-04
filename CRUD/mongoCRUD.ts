@@ -10,9 +10,9 @@ export interface JoinDocument {
 interface MyDocument<T extends Document> extends Document<any, any, T> {}
 
 //create
-export const saveData = async (modelName) => {
+export const saveDataToMongoDB = async (data: any) => {
   try {
-    const response = await modelName.save();
+    const response = await data.save();
     console.log("at mongoCRUD/saveData the response is:", response);
     if (response) {
       return { ok: true, response };
@@ -23,27 +23,20 @@ export const saveData = async (modelName) => {
   }
 }; //work ok
 
-export const createAndSaveData = async <T extends MyDocument<IUserWordDoc>>(
-  req: any,
-  res: any,
+//only for join collection
+export const createAndSaveDataToMongoDB = async <T extends MyDocument<IUserWordDoc>>(
   modelName: Model<MyJoinCollection<T>>,
-  item1IdName: string,
-  item2IdName: string,
-  item1ID: ObjectId,
-  item2ID: ObjectId
+  item1IdName: string, // name of library 1
+  item2IdName: string, // name of library 2
+  item1ID: ObjectId, // object from library 1
+  item2ID: ObjectId // object from library 2
 ) => {
   try {
     console.log("at mongoCRUD/createAndSaveData the item1ID is:", item1ID);
     console.log("at mongoCRUD/createAndSaveData the item2ID is:", item2ID);
     console.log("at mongoCRUD/createAndSaveData the modelName is:", modelName);
-    console.log(
-      "at mongoCRUD/createAndSaveData the item1IdName is:",
-      item1IdName
-    );
-    console.log(
-      "at mongoCRUD/createAndSaveData the item2IdName is:",
-      item2IdName
-    );
+    console.log("at mongoCRUD/createAndSaveData the item1IdName is:", item1IdName );
+    console.log("at mongoCRUD/createAndSaveData the item2IdName is:", item2IdName );
 
     if (!item1ID || !item2ID) {
       throw new Error("Invalid item1ID or item2ID");
@@ -58,7 +51,7 @@ export const createAndSaveData = async <T extends MyDocument<IUserWordDoc>>(
       newJoinData
     );
 
-    const response = await newJoinData.save();
+    const response = await saveDataToMongoDB(newJoinData)
     console.log("at mongoCRUD/createAndSaveData the response is:", response);
 
     if (response) {
@@ -71,9 +64,7 @@ export const createAndSaveData = async <T extends MyDocument<IUserWordDoc>>(
 }; //work ok
 
 //read - get all - find all
-export const getAllData = async <T extends Document>(
-  req: any,
-  res: any,
+export const getAllDataFromMongoDB = async <T extends Document>(
   modelName: Model<MyDocument<T>>,
   filterCriteria?: Record<string, any>
 ) => {
@@ -103,9 +94,7 @@ export const getAllData = async <T extends Document>(
 }; //work ok
 
 //read - get one - find one
-export const getOneData = async <T extends Document>(
-  req: any,
-  res: any,
+export const getOneDataFromMongoDB = async <T extends Document>(
   modelName: Model<MyDocument<T>>,
   filterCriteria: Record<string, any>
 ) => {
@@ -123,7 +112,7 @@ export const getOneData = async <T extends Document>(
 }; //work ok
 
 //read - get by id
-export const getDataByID = async <T extends Document>(
+export const getOneDataFromMongoDBByID = async <T extends Document>(
   modelName: Model<MyDocument<T>>,
   filterCriteria: ObjectId | string
 ) => {
@@ -189,7 +178,7 @@ export const getXRandomDataList = async <T extends Document>(
 }; //work ok
 
 //update
-export const updateOneData = async <T extends Document>(
+export const updateOneDataOnMongoDB = async <T extends Document>(
   modelName: Model<MyDocument<T>>,
   filter: any,
   update: any,
@@ -215,7 +204,7 @@ export const updateOneData = async <T extends Document>(
 
 //delete
 //item is uniq
-export const deleteOneData = async <T extends Document>(
+export const deleteOneDataFromMongoDB = async <T extends Document>(
   modelName: Model<MyDocument<T>>,
   item: any
 ) => {
