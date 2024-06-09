@@ -103,37 +103,60 @@ export async function addWord(req: any, res: any) {
 // } 
 
 
-//update thw word in words.db (wil update for all users using this word)
-export async function updateWord(req: any, res: any) {
+//update thw word in words.db (will update for all users using this word)
+export async function updateWordFieldByWordId(req: any, res: any) {
   try {
     const wordID = req.params.wordID;
     if (!wordID) throw new Error("no word id in params updateWord");
     console.log("at wordCont/updateWord the wordID:", wordID);
 
-    const { en_word, he_word } = req.body;
-    if (!en_word || !he_word) throw new Error("no word in body");
+    const { field } = req.body;
+    const { updateData } = req.body;
 
-    const updateWordData = {en_word, he_word}
+    if (!field || !updateData) throw new Error("missing data required field or updateData");
 
-    //find the word in DB by word_id and update
+    const updateWordData = {field: updateData}
+
+    //find the word in DB by word_id and update the require field
     const wordExistAndUpdate = await updateOneDataOnMongoDB(WordModel, { _id: wordID }, updateWordData)
     console.log("at wordCont/updateWord the wordExistAndUpdate", wordExistAndUpdate)
-      res.send(wordExistAndUpdate);
-      //at wordCont/updateWord the wordExistAndUpdate {
-          //   ok: true,
-          //   response: {
-          //        _id: new ObjectId("66571ff99d66a29097bae66d"),
-          //        en_word: 'the update en_word',
-          //        he_word:'the update he_word',
-          //        __v: 0
-          //   },
-          //   massage: 'The word update successfully'
-          // }
+      res.send(wordExistAndUpdate); 
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: error.message });
   }
-} //work ok
+}
+//old virion
+// export async function updateWord(req: any, res: any) {
+//   try {
+//     const wordID = req.params.wordID;
+//     if (!wordID) throw new Error("no word id in params updateWord");
+//     console.log("at wordCont/updateWord the wordID:", wordID);
+
+//     const { en_word, he_word } = req.body;
+//     if (!en_word || !he_word) throw new Error("no word in body");
+
+//     const updateWordData = {en_word, he_word}
+
+//     //find the word in DB by word_id and update
+//     const wordExistAndUpdate = await updateOneDataOnMongoDB(WordModel, { _id: wordID }, updateWordData)
+//     console.log("at wordCont/updateWord the wordExistAndUpdate", wordExistAndUpdate)
+//       res.send(wordExistAndUpdate);
+//       //at wordCont/updateWord the wordExistAndUpdate {
+//           //   ok: true,
+//           //   response: {
+//           //        _id: new ObjectId("66571ff99d66a29097bae66d"),
+//           //        en_word: 'the update en_word',
+//           //        he_word:'the update he_word',
+//           //        __v: 0
+//           //   },
+//           //   massage: 'The word update successfully'
+//           // }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ error: error.message });
+//   }
+// } //work ok
 
 //! delete word from all DB (admin only) - not use yet
 //1. delete the word by id from all user-word-model (no need for userID)

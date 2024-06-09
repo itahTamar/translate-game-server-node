@@ -81,18 +81,18 @@ export const getAllDataFromMongoDB = async <T extends Document>(
     console.error(error);
     return { ok: false, error: error.message };
   }
-  try {
-    console.log("at mongoCRUD/getAllData the modelName is:", modelName);
-    const response = await modelName.find({});
-    if (response.length > 0) {
-      return { ok: true, response };
-    } else {
-      return { ok: true, response: [] };
-    }
-  } catch (error) {
-    console.error(error);
-    return { ok: false, error: error.message };
-  }
+  // try {
+  //   console.log("at mongoCRUD/getAllData the modelName is:", modelName);
+  //   const response = await modelName.find({});
+  //   if (response.length > 0) {
+  //     return { ok: true, response };
+  //   } else {
+  //     return { ok: true, response: [] };
+  //   }
+  // } catch (error) {
+  //   console.error(error);
+  //   return { ok: false, error: error.message };
+  // }
 }; //work ok
 
 //read - get one - find one
