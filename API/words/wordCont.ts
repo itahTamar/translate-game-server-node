@@ -1,5 +1,5 @@
 import jwt from "jwt-simple";
-import { createAndSaveDataToMongoDB, getAllDataFromMongoDB, saveDataToMongoDB, updateOneDataOnMongoDB, getOneDataFromMongoDBByID } from "../../CRUD/mongoCRUD";
+import { createAndSaveDataToMongoDB, getAllDataFromMongoDB, saveDataToMongoDB, updateOneDataOnMongoDB, getOneDataFromJoinCollectionInMongoDB } from "../../CRUD/mongoCRUD";
 import { getOneDataFromMongoDB } from "./../../CRUD/mongoCRUD";
 import { IWordDocument, UserWordsModel, WordModel } from "./wordModel";
 
@@ -29,15 +29,18 @@ export async function addWord(req: any, res: any) {
     const { en_word, he_word } = req.body;
     console.log("At wordCont/addWord the req.body:", { en_word, he_word }); // work ok
     if (!en_word || !he_word)
-      throw new Error("At wordCont addWord: Please complete all fields");
+      throw new Error("At wordCont addWord: Please complete all fields")
+    const en_word_lowCase = en_word.toLowerCase()  //convert the characters within a string to lowercase
+    console.log("At wordCont/addWord the en_word_lowCase:", en_word_lowCase); // work ok
+
     //create new word with using mongoose
-    const word = new WordModel({ en_word, he_word });
-    console.log("At wordCont addWord word:", word); //work ok
+    const word = new WordModel({ en_word: en_word_lowCase, he_word });
+    console.log("At wordCont/addWord word:", word); //work ok
     let wordDBid;
     //check if the word exist on word-DB
     const isWordExist = await getOneDataFromMongoDB<IWordDocument>(WordModel, {
-      en_word: en_word,
-      he_word: he_word,
+      en_word: word.en_word,
+      he_word: word.he_word,
     });
     console.log("At wordCont/addWord isWordExist:", isWordExist); //isWordExist: {ok: true, response: {_id: , en_word:"" , he_word: ""}}
     if (isWordExist) {
@@ -52,15 +55,15 @@ export async function addWord(req: any, res: any) {
       console.log("At wordCont/addWord wordDBid:", wordDBid);
     }
     //check if the words already in the userWordsDB -> work
-    const existingUserWord = await getOneDataFromMongoDBByID<IWordDocument>(
+    const existingUserWord = await getOneDataFromJoinCollectionInMongoDB(
       UserWordsModel, 
   //@ts-ignore
       { wordsId: wordDBid, userId: decodedUserId });
     console.log("At wordCont/addWord existingUserWord:", existingUserWord);
-    let message;
+    let message: string;
     if (existingUserWord.ok) {
       console.log("At wordCont addWord: the word already exist in your DB");
-      message = "the word already exist in your vocabulary";
+      message = "The word already exist in your vocabulary";
     } else {
       const newUserWordDB = await createAndSaveDataToMongoDB(
         UserWordsModel,
@@ -70,7 +73,7 @@ export async function addWord(req: any, res: any) {
         decodedUserId
       ); // save the new word in the user-word-DB
       console.log("At wordCont addWord newUserWordDB:", newUserWordDB); //--> work
-      message = "the word was successfully saved";
+      message = "The word was successfully saved";
     }
     //query the DB to retrieve all the user words
     const userWords = await getAllDataFromMongoDB<IWordDocument>(

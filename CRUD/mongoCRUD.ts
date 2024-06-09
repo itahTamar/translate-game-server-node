@@ -74,6 +74,8 @@ export const getAllDataFromMongoDB = async <T extends Document>(
     console.log("at mongoCRUD/getAllData the response is:", response);
     if (response) {
       return { ok: true, response };
+    } else {
+      return { ok: false }
     }
   } catch (error) {
     console.error(error);
@@ -95,7 +97,7 @@ export const getAllDataFromMongoDB = async <T extends Document>(
 
 //read - get one - find one
 export const getOneDataFromMongoDB = async <T extends Document>(
-  modelName: Model<MyDocument<T>>,
+  modelName: Model<T>,
   filterCriteria: Record<string, any>
 ) => {
   try {
@@ -112,14 +114,24 @@ export const getOneDataFromMongoDB = async <T extends Document>(
 }; //work ok
 
 //read - get by id
-export const getOneDataFromMongoDBByID = async <T extends Document>(
-  modelName: Model<MyDocument<T>>,
-  filterCriteria: ObjectId | string
+export const getOneDataFromJoinCollectionInMongoDB = async <T extends Document>(
+  modelName: Model<T>,
+  filterCriteria:{
+    wordsId: ObjectId,
+    userId: string | ObjectId
+  }  
 ) => {
   try {
     console.log("at mongoCRUD/getDataByID the modelName:", modelName)
     console.log("at mongoCRUD/getDataByID the filterCriteria:", filterCriteria)
-    const response = await modelName.findById(filterCriteria);
+    // Check if userId is a string and convert it to ObjectId
+if (typeof filterCriteria.userId === 'string') {
+  filterCriteria.userId = new ObjectId(filterCriteria.userId);
+console.log("at mongoCRUD/getDataByID the new filterCriteria:", filterCriteria)
+
+}
+
+    const response = await modelName.findOne(filterCriteria);
     console.log("at mongoCRUD/getDataByID the response is:", response);
     if (response) {
       return { ok: true, response };
@@ -179,7 +191,7 @@ export const getXRandomDataList = async <T extends Document>(
 
 //update
 export const updateOneDataOnMongoDB = async <T extends Document>(
-  modelName: Model<MyDocument<T>>,
+  modelName: Model<T>,
   filter: any,
   update: any,
 ) => {

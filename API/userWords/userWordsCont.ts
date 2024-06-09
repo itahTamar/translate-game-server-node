@@ -3,12 +3,12 @@ import { Document, ObjectId } from "mongoose";
 import {
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
-  getOneDataFromMongoDBByID,
+  getOneDataFromJoinCollectionInMongoDB,
   getXRandomDataList
 } from "../../CRUD/mongoCRUD";
 import { UserWordsModel, WordModel } from "./../words/wordModel";
 
-var ObjectId = require("mongoose").Types.ObjectId;
+let ObjectId = require("mongoose").Types.ObjectId;
 
 interface UserWordDocument extends Document {
   id: string;
@@ -77,7 +77,7 @@ export async function getAllUsersWords(req: any, res: any) {
     );
 
     const allUserWordsArray = await userWordArray1.map((e) =>
-      getOneDataFromMongoDBByID(WordModel, e.wordsId)
+      getOneDataFromJoinCollectionInMongoDB(WordModel, e.wordsId)
     );
     console.log(
       "At userWordsCont getAllUsersWords the allUserWordsArray:",
