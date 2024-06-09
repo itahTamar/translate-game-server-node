@@ -56,9 +56,7 @@ export async function addWord(req: any, res: any) {
     }
     //check if the words already in the userWordsDB -> work
     const existingUserWord = await getOneDataFromJoinCollectionInMongoDB(
-      UserWordsModel, 
-  //@ts-ignore
-      { wordsId: wordDBid, userId: decodedUserId });
+      UserWordsModel, { wordsId: wordDBid, userId: decodedUserId });
     console.log("At wordCont/addWord existingUserWord:", existingUserWord);
     let message: string;
     if (existingUserWord.ok) {
