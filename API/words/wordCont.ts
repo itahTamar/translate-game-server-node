@@ -74,7 +74,7 @@ export async function addWord(req: any, res: any) {
       message = "The word was successfully saved";
     }
     //query the DB to retrieve all the user words
-    const userWords = await getAllDataFromMongoDB<IWordDocument>(
+    const userWords = await getAllDataFromMongoDB(
       UserWordsModel,
       { userId: decodedUserId }
     ); //bring all user-words from DB

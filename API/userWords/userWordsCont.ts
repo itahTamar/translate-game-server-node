@@ -59,7 +59,7 @@ export async function getAllUsersWords(req: any, res: any) {
     ); //work ok
 
     // const allUserWordsIDFromDBs = await UserWordsModel.find({userId: decodedUserId}); //get all users word into array of objects with the id of the words not the words themselves
-    const userWordDocResult = await getAllDataFromMongoDB<UserWordDocument>(
+    const userWordDocResult = await getAllDataFromMongoDB(
       UserWordsModel,
       { userId: decodedUserId }
     );
