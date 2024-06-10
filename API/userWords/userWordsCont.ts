@@ -190,10 +190,7 @@ export async function deleteUserWord(req: any, res: any) {
       );
 
     const decodedUserId = jwt.decode(userID, secret);
-    console.log(
-      "At userWordsCont getUserWords the decodedUserId:",
-      decodedUserId
-    );
+    console.log("At userWordsCont getUserWords the decodedUserId:", decodedUserId);
 
     const wordID = req.params.wordID;
     if (!wordID) throw new Error("no word id in params deleteUserWord");

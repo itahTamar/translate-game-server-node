@@ -25,8 +25,7 @@ export const saveDataToMongoDB = async (data: any) => {
 
 //only for join collection
 export const createAndSaveDataToMongoDB = async <
-  T extends MyDocument<IUserWordDoc>
->(
+  T extends MyDocument<IUserWordDoc>>(
   modelName: Model<MyJoinCollection<T>>,
   library1Name: string, // name of library 1
   library2Name: string, // name of library 2
@@ -223,7 +222,13 @@ export const deleteOneDataFromMongoDB = async <T extends Document>(
   item: any
 ) => {
   try {
-    const response = await modelName.findOneAndDelete({ item });
+    console.log("At mongoCRUD/deleteOneDataFromMongoDB the modelName:", modelName)
+    console.log("At mongoCRUD/deleteOneDataFromMongoDB the item:", item)
+
+    const response = await modelName.findOneAndDelete( item );
+    console.log("At mongoCRUD/deleteOneDataFromMongoDB the response:", response)
+    if (response === null) throw new Error("response is null");
+    
     if (response) {
       return { ok: true };
     } else {
