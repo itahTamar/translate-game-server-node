@@ -108,18 +108,21 @@ export async function updateWordFieldByWordId(req: any, res: any) {
   try {
     const wordID = req.params.wordID;
     if (!wordID) throw new Error("no word id in params updateWord");
-    console.log("at wordCont/updateWord the wordID:", wordID);
+    console.log("at wordCont/updateWordFieldByWordId the wordID:", wordID);
 
     const { field } = req.body;
+    console.log("at wordCont/updateWordFieldByWordId the field:", field); //ok
+
     const { updateData } = req.body;
 
     if (!field || !updateData) throw new Error("missing data required field or updateData");
 
-    const updateWordData = {field: updateData}
-
+    const updateWordData = {[field]: updateData}
+    console.log("at wordCont/updateWordFieldByWordId the updateWordData:", updateWordData);
+    
     //find the word in DB by word_id and update the require field
     const wordExistAndUpdate = await updateOneDataOnMongoDB(WordModel, { _id: wordID }, updateWordData)
-    console.log("at wordCont/updateWord the wordExistAndUpdate", wordExistAndUpdate)
+    console.log("at wordCont/updateWordFieldByWordId the wordExistAndUpdate", wordExistAndUpdate)
       res.send(wordExistAndUpdate); 
   } catch (error) {
     console.error(error);

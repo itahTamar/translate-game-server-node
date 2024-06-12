@@ -195,9 +195,9 @@ export const updateOneDataOnMongoDB = async <T extends Document>(
   update: any
 ) => {
   try {
-    console.log("at mongoCRUD/updateOneData the modelName", modelName);
-    console.log("at mongoCRUD/updateOneData the filter", filter);
-    console.log("at mongoCRUD/updateOneData the update", update);
+    console.log("at mongoCRUD/updateOneDataOnMongoDB the modelName", modelName);
+    console.log("at mongoCRUD/updateOneDataOnMongoDB the filter", filter);
+    console.log("at mongoCRUD/updateOneDataOnMongoDB the update", update);
     const response = await modelName.findOneAndUpdate(filter, update, {
       new: true,
     });
