@@ -128,7 +128,8 @@ export async function updateWordFieldByWordId(req: any, res: any) {
     console.error(error);
     res.status(500).send({ error: error.message });
   }
-}
+} //work ok
+
 //old virion
 // export async function updateWord(req: any, res: any) {
 //   try {
