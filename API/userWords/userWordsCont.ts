@@ -144,7 +144,7 @@ export async function getXRandomUserWords(req: any, res: any) {
       UserWordsModel,
       "userId",
       userIdMongoose,
-      3,
+      10,
       "words",
       "wordsId",
       "_id",
