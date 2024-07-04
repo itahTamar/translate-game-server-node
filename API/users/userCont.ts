@@ -31,7 +31,7 @@ export const registerUser = async (req: any, res: any) => {
     }
   } catch (error) {
     console.error(error);
-    res.send({ ok: false, error: error.message });
+    res.send({ ok: false, error: "server error at register-user" });
   }
 }; //work ok
 
@@ -69,32 +69,9 @@ export const login = async (req: any, res: any) => {
     res.send({ ok: true });
   } catch (error) {
     console.error(error);
-    res.status(401).send({ error: error.message });
+    res.status(401).send({ error });
   }
 }; //work ok
-
-// export async function getUser(userID: string) {
-//   try {
-//       const secret = process.env.JWT_SECRET;
-//       if (!secret) throw new Error("At userCont getUser: Couldn't load secret from .env");
-
-//       console.log('At userCont getUser the parameter:', userID) //got it
-
-//       const decodedUserId = jwt.decode(userID, secret);
-//       console.log('At userCont getUser the decodedUserId:', decodedUserId)
-
-//       // const { userId } = decodedUserId;
-
-//       const userDB = await UserModel.findById(decodedUserId);
-//       if (!userDB) throw new Error(`At userCont getUser: Couldn't find user id with the id: ${decodedUserId}`);
-//       //console.log('At userCont getUser userDB:',userDB) //work
-//       //res.send({ userDB });
-//       return userDB.userName
-//   } catch (error) {
-//       //res.send({ error: error.message })
-//       console.error(error);
-//   }
-// }
 
 //did not use this functions now:
 export async function deleteUser(req: any, res: any) {
@@ -116,7 +93,7 @@ export async function deleteUser(req: any, res: any) {
     res.send({ ok: true });
   } catch (error) {
     console.error(error);
-    res.send({ error: error.message });
+    res.send({ error });
   }
 }
 
@@ -143,7 +120,7 @@ export async function updateUser(req: any, res: any) {
     res.send({ ok: true }, newUserdb);
   } catch (error) {
     console.error(error);
-    res.send({ error: error.message });
+    res.send({ error });
   }
 }
 
