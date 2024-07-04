@@ -3,7 +3,6 @@ import { UserModel } from "../users/userModel";
 // import { MyJoinCollection } from "../../CRUD/mongoCRUD";
 import { ObjectId } from "mongodb";
 export interface IWordDocument extends Document {
-  //   _id: string;
   en_word: string;
   he_word: string;
 }
@@ -65,9 +64,3 @@ export const UserWordsModel: Model<MyJoinCollection<MyDocument<IUserWordDoc>>> =
     UserWordsSchema
   );
 
-// export const UserWordsModel: Model<
-//   MyJoinCollection<IUserWordDoc, IUserWordDoc>
-// > = model<MyJoinCollection<IUserWordDoc, IUserWordDoc>>(
-//   "UserWords",
-//   UserWordsSchema
-// );

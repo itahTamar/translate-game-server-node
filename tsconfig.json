@@ -3,10 +3,14 @@
       "module": "commonjs",
       "esModuleInterop": true,
       "target": "es6",
+      "strict": true,
       "moduleResolution": "node",
       "sourceMap": true,
       "outDir": "dist",
-      "types": ["mongoose"]
+      "types": ["mongoose"],
+      "skipLibCheck": true
     },
-    "lib": ["es2015"]
+    "lib": ["es2015"],
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules"]
   }
