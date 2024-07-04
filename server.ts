@@ -2,6 +2,7 @@ import express from "express";
 import mongoose, { ConnectOptions } from 'mongoose';
 import cookieParser from 'cookie-parser';
 import {addFieldToUsers} from './API/users/updateUserDB'
+import cors from 'cors'
 
 //npm i dotenv
 import dotenv from 'dotenv';
@@ -19,19 +20,9 @@ app.use(cookieParser())
 //body
 app.use(express.json());
 
-import connectionMongo from "./DBConnections/mongodb";
+import connectionMongo from "./config/dbConn";
 
-// //connect to mongoDB with mongoose
-// const mongodb_uri = process.env.MONGO_URL;
-
-// // connect to mongoDB with mongoose
-// mongoose.connect(mongodb_uri).then(() => {
-//   console.info("MongoDB connected");
-//   // addFieldToUsers("role", "user");  //update my user DB with a new field
-// })
-//   .catch(err => {
-//     console.error(err)
-//   })
+app.use(cors(corsOptions))
 
 // get router from usersRouter
 import userRoute from "./API/users/userRoute";
@@ -44,6 +35,7 @@ app.use("/api/words", wordRoute);
 
 // get router from wordRouter
 import userWordsRoute from "./API/userWords/userWordsRoute";
+import { corsOptions } from "./config/corsOptions";
 app.use("/api/userWords", userWordsRoute);
 
 // app.use((req, res, next) => {
