@@ -16,7 +16,7 @@ exports.deleteUserWord = exports.getXRandomUserWords = exports.getAllUsersWords 
 const jwt_simple_1 = __importDefault(require("jwt-simple"));
 const mongoCRUD_1 = require("../../CRUD/mongoCRUD");
 const wordModel_1 = require("./../words/wordModel");
-var ObjectId = require("mongoose").Types.ObjectId;
+let ObjectId = require("mongoose").Types.ObjectId;
 // function createUserWordDocument(
 //   id: string,
 //   wordsId: ObjectId,
@@ -49,14 +49,14 @@ function getAllUsersWords(req, res) {
             const decodedUserId = jwt_simple_1.default.decode(userID, secret);
             console.log("At userWordsCont getAllUsersWords the decodedUserId:", decodedUserId); //work ok
             // const allUserWordsIDFromDBs = await UserWordsModel.find({userId: decodedUserId}); //get all users word into array of objects with the id of the words not the words themselves
-            const userWordDocResult = yield (0, mongoCRUD_1.getAllData)(req, res, wordModel_1.UserWordsModel, { userId: decodedUserId });
+            const userWordDocResult = yield (0, mongoCRUD_1.getAllDataFromMongoDB)(wordModel_1.UserWordsModel, { userId: decodedUserId });
             if (!userWordDocResult.ok)
                 throw new Error(userWordDocResult.error);
             console.log("At userWordsCont getAllUsersWords the userWordDocResult:", userWordDocResult);
             //@ts-ignore
             const userWordArray1 = userWordDocResult.response;
             console.log("At userWordsCont getAllUsersWords the userWordArray1:", userWordArray1);
-            const allUserWordsArray = yield userWordArray1.map((e) => (0, mongoCRUD_1.getDataByID)(wordModel_1.WordModel, e.wordsId));
+            const allUserWordsArray = yield userWordArray1.map((e) => (0, mongoCRUD_1.getOneDataFromJoinCollectionInMongoDB)(wordModel_1.WordModel, e.wordsId));
             console.log("At userWordsCont getAllUsersWords the allUserWordsArray:", allUserWordsArray);
             const allUserWordsData = yield Promise.all(allUserWordsArray.map((promise) => __awaiter(this, void 0, void 0, function* () { return yield promise; })));
             console.log("At userWordsCont getAllUsersWords the allUserWordsData:", allUserWordsData);
@@ -124,7 +124,7 @@ function deleteUserWord(req, res) {
             if (!wordID)
                 throw new Error("no word id in params deleteUserWord");
             console.log("at wordCont/deleteUserWord the wordID:", wordID);
-            if (yield (0, mongoCRUD_1.deleteOneData)(wordModel_1.UserWordsModel, {
+            if (yield (0, mongoCRUD_1.deleteOneDataFromMongoDB)(wordModel_1.UserWordsModel, {
                 wordsId: wordID,
                 userId: decodedUserId,
             })) {

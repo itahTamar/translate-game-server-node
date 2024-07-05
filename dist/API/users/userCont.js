@@ -42,7 +42,7 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
     catch (error) {
         console.error(error);
-        res.send({ ok: false, error: error.message });
+        res.send({ ok: false, error: "server error at register-user" });
     }
 }); //work ok
 exports.registerUser = registerUser;
@@ -76,28 +76,10 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (error) {
         console.error(error);
-        res.status(401).send({ error: error.message });
+        res.status(401).send({ error });
     }
 }); //work ok
 exports.login = login;
-// export async function getUser(userID: string) {
-//   try {
-//       const secret = process.env.JWT_SECRET;
-//       if (!secret) throw new Error("At userCont getUser: Couldn't load secret from .env");
-//       console.log('At userCont getUser the parameter:', userID) //got it
-//       const decodedUserId = jwt.decode(userID, secret);
-//       console.log('At userCont getUser the decodedUserId:', decodedUserId)
-//       // const { userId } = decodedUserId;
-//       const userDB = await UserModel.findById(decodedUserId);
-//       if (!userDB) throw new Error(`At userCont getUser: Couldn't find user id with the id: ${decodedUserId}`);
-//       //console.log('At userCont getUser userDB:',userDB) //work
-//       //res.send({ userDB });
-//       return userDB.userName
-//   } catch (error) {
-//       //res.send({ error: error.message })
-//       console.error(error);
-//   }
-// }
 //did not use this functions now:
 function deleteUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -121,7 +103,7 @@ function deleteUser(req, res) {
         }
         catch (error) {
             console.error(error);
-            res.send({ error: error.message });
+            res.send({ error });
         }
     });
 }
@@ -148,7 +130,7 @@ function updateUser(req, res) {
         }
         catch (error) {
             console.error(error);
-            res.send({ error: error.message });
+            res.send({ error });
         }
     });
 }

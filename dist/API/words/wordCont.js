@@ -13,16 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateWord = exports.addWord = exports.getWords = void 0;
-const wordModel_1 = require("./wordModel");
 const jwt_simple_1 = __importDefault(require("jwt-simple"));
 const mongoCRUD_1 = require("../../CRUD/mongoCRUD");
 const mongoCRUD_2 = require("./../../CRUD/mongoCRUD");
+const wordModel_1 = require("./wordModel");
 //get all words of all users
 function getWords(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             console.log("hello from getWords");
-            const wordsDB = yield (0, mongoCRUD_1.getAllData)(req, res, wordModel_1.WordModel);
+            //@ts-ignore
+            const wordsDB = yield (0, mongoCRUD_1.getAllDataFromMongoDB)(wordModel_1.WordModel);
             res.send({ words: wordsDB });
         }
         catch (error) {
@@ -48,14 +49,16 @@ function addWord(req, res) {
             console.log("At wordCont/addWord the req.body:", { en_word, he_word }); // work ok
             if (!en_word || !he_word)
                 throw new Error("At wordCont addWord: Please complete all fields");
+            const en_word_lowCase = en_word.toLowerCase(); //convert the characters within a string to lowercase
+            console.log("At wordCont/addWord the en_word_lowCase:", en_word_lowCase); // work ok
             //create new word with using mongoose
-            const word = new wordModel_1.WordModel({ en_word, he_word });
-            console.log("At wordCont addWord word:", word); //work ok
+            const word = new wordModel_1.WordModel({ en_word: en_word_lowCase, he_word });
+            console.log("At wordCont/addWord word:", word); //work ok
             let wordDBid;
             //check if the word exist on word-DB
-            const isWordExist = yield (0, mongoCRUD_2.getOneData)(req, res, wordModel_1.WordModel, {
-                en_word: en_word,
-                he_word: he_word,
+            const isWordExist = yield (0, mongoCRUD_2.getOneDataFromMongoDB)(wordModel_1.WordModel, {
+                en_word: word.en_word,
+                he_word: word.he_word,
             });
             console.log("At wordCont/addWord isWordExist:", isWordExist); //isWordExist: {ok: true, response: {_id: , en_word:"" , he_word: ""}}
             if (isWordExist) {
@@ -65,27 +68,27 @@ function addWord(req, res) {
             }
             else {
                 //save the new word in word-DB
-                const ok = (0, mongoCRUD_1.saveData)(word); //work ok
+                const ok = (0, mongoCRUD_1.saveDataToMongoDB)(word); //work ok
                 if (!ok)
                     throw new Error("at addWord Fails to save the word in word-db");
                 wordDBid = word._id;
                 console.log("At wordCont/addWord wordDBid:", wordDBid);
             }
             //check if the words already in the userWordsDB -> work
-            const existingUserWord = yield (0, mongoCRUD_2.getOneData)(req, res, wordModel_1.UserWordsModel, { wordsId: wordDBid, userId: decodedUserId });
+            const existingUserWord = yield (0, mongoCRUD_1.getOneDataFromJoinCollectionInMongoDB)(wordModel_1.UserWordsModel, { wordsId: wordDBid, userId: decodedUserId });
             console.log("At wordCont/addWord existingUserWord:", existingUserWord);
             let message;
             if (existingUserWord.ok) {
                 console.log("At wordCont addWord: the word already exist in your DB");
-                message = "the word already exist in your vocabulary";
+                message = "The word already exist in your vocabulary";
             }
             else {
-                const newUserWordDB = yield (0, mongoCRUD_1.createAndSaveData)(req, res, wordModel_1.UserWordsModel, "wordsId", "userId", wordDBid, decodedUserId); // save the new word in the user-word-DB
+                const newUserWordDB = yield (0, mongoCRUD_1.createAndSaveDataToMongoDB)(wordModel_1.UserWordsModel, "wordsId", "userId", wordDBid, decodedUserId); // save the new word in the user-word-DB
                 console.log("At wordCont addWord newUserWordDB:", newUserWordDB); //--> work
-                message = "the word was successfully saved";
+                message = "The word was successfully saved";
             }
             //query the DB to retrieve all the user words
-            const userWords = yield (0, mongoCRUD_1.getAllData)(req, res, wordModel_1.UserWordsModel, { userId: decodedUserId }); //bring all user-words from DB
+            const userWords = yield (0, mongoCRUD_1.getAllDataFromMongoDB)(wordModel_1.UserWordsModel, { userId: decodedUserId }); //bring all user-words from DB
             console.log("At wordCont/addWord userWords:", userWords);
             //send the new word array to user
             if (userWords === undefined)
@@ -122,7 +125,7 @@ function updateWord(req, res) {
                 throw new Error("no word in body");
             const updateWordData = { en_word, he_word };
             //find the word in DB by word_id and update
-            const wordExistAndUpdate = yield (0, mongoCRUD_1.updateOneData)(wordModel_1.WordModel, { _id: wordID }, updateWordData);
+            const wordExistAndUpdate = yield (0, mongoCRUD_1.updateOneDataOnMongoDB)(wordModel_1.WordModel, { _id: wordID }, updateWordData);
             console.log("at wordCont/updateWord the wordExistAndUpdate", wordExistAndUpdate);
             res.send(wordExistAndUpdate);
             //at wordCont/updateWord the wordExistAndUpdate {

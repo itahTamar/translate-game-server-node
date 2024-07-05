@@ -21,21 +21,9 @@ const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
 //middleware for using parser
 app.use((0, cookie_parser_1.default)());
-//static files
-// app.use(express.static("public"));
 //body
 app.use(express_1.default.json());
 const mongodb_1 = __importDefault(require("./DBConnections/mongodb"));
-// //connect to mongoDB with mongoose
-// const mongodb_uri = process.env.MONGO_URL;
-// // connect to mongoDB with mongoose
-// mongoose.connect(mongodb_uri).then(() => {
-//   console.info("MongoDB connected");
-//   // addFieldToUsers("role", "user");  //update my user DB with a new field
-// })
-//   .catch(err => {
-//     console.error(err)
-//   })
 // get router from usersRouter
 const userRoute_1 = __importDefault(require("./API/users/userRoute"));
 app.use("/api/users", userRoute_1.default);

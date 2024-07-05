@@ -9,11 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteOneData = exports.updateOneData = exports.getXRandomDataList = exports.getDataByID = exports.getOneData = exports.getAllData = exports.createAndSaveData = exports.saveData = void 0;
+exports.deleteOneDataFromMongoDB = exports.updateOneDataOnMongoDB = exports.getXRandomDataList = exports.getOneDataFromJoinCollectionInMongoDB = exports.getOneDataFromMongoDB = exports.getAllDataFromMongoDB = exports.createAndSaveDataToMongoDB = exports.saveDataToMongoDB = void 0;
+const mongodb_1 = require("mongodb");
 //create
-const saveData = (modelName) => __awaiter(void 0, void 0, void 0, function* () {
+const saveDataToMongoDB = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield modelName.save();
+        const response = yield data.save();
         console.log("at mongoCRUD/saveData the response is:", response);
         if (response) {
             return { ok: true, response };
@@ -24,23 +25,28 @@ const saveData = (modelName) => __awaiter(void 0, void 0, void 0, function* () {
         return { ok: false, error: error.message };
     }
 }); //work ok
-exports.saveData = saveData;
-const createAndSaveData = (req, res, modelName, item1IdName, item2IdName, item1ID, item2ID) => __awaiter(void 0, void 0, void 0, function* () {
+exports.saveDataToMongoDB = saveDataToMongoDB;
+//only for join collection
+const createAndSaveDataToMongoDB = (modelName, library1Name, // name of library 1
+library2Name, // name of library 2
+item1ID, // object from library 1
+item2ID // object from library 2
+) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("at mongoCRUD/createAndSaveData the item1ID is:", item1ID);
         console.log("at mongoCRUD/createAndSaveData the item2ID is:", item2ID);
         console.log("at mongoCRUD/createAndSaveData the modelName is:", modelName);
-        console.log("at mongoCRUD/createAndSaveData the item1IdName is:", item1IdName);
-        console.log("at mongoCRUD/createAndSaveData the item2IdName is:", item2IdName);
+        console.log("at mongoCRUD/createAndSaveData the item1IdName is:", library1Name);
+        console.log("at mongoCRUD/createAndSaveData the item2IdName is:", library2Name);
         if (!item1ID || !item2ID) {
             throw new Error("Invalid item1ID or item2ID");
         }
         const newJoinData = yield modelName.create({
-            [item1IdName]: item1ID,
-            [item2IdName]: item2ID,
+            [library1Name]: item1ID,
+            [library2Name]: item2ID,
         }); // save the new join in the join-DB
         console.log("at mongoCRUD/createAndSaveData the newJoinData is:", newJoinData);
-        const response = yield newJoinData.save();
+        const response = yield (0, exports.saveDataToMongoDB)(newJoinData);
         console.log("at mongoCRUD/createAndSaveData the response is:", response);
         if (response) {
             return { ok: true, response };
@@ -51,15 +57,18 @@ const createAndSaveData = (req, res, modelName, item1IdName, item2IdName, item1I
         return { ok: false, error: error.message };
     }
 }); //work ok
-exports.createAndSaveData = createAndSaveData;
+exports.createAndSaveDataToMongoDB = createAndSaveDataToMongoDB;
 //read - get all - find all
-const getAllData = (req, res, modelName, filterCriteria) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllDataFromMongoDB = (modelName, filterCriteria) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("at mongoCRUD/getAllData the modelName is:", modelName);
         const response = yield modelName.find(filterCriteria);
         console.log("at mongoCRUD/getAllData the response is:", response);
         if (response) {
             return { ok: true, response };
+        }
+        else {
+            return { ok: false };
         }
     }
     catch (error) {
@@ -81,9 +90,9 @@ const getAllData = (req, res, modelName, filterCriteria) => __awaiter(void 0, vo
         return { ok: false, error: error.message };
     }
 }); //work ok
-exports.getAllData = getAllData;
+exports.getAllDataFromMongoDB = getAllDataFromMongoDB;
 //read - get one - find one
-const getOneData = (req, res, modelName, filterCriteria) => __awaiter(void 0, void 0, void 0, function* () {
+const getOneDataFromMongoDB = (modelName, filterCriteria) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("at mongoCRUD/getOneData the modelName is:", modelName);
         const response = yield modelName.findOne(filterCriteria);
@@ -97,13 +106,18 @@ const getOneData = (req, res, modelName, filterCriteria) => __awaiter(void 0, vo
         return { ok: false, error: error.message };
     }
 }); //work ok
-exports.getOneData = getOneData;
+exports.getOneDataFromMongoDB = getOneDataFromMongoDB;
 //read - get by id
-const getDataByID = (modelName, filterCriteria) => __awaiter(void 0, void 0, void 0, function* () {
+const getOneDataFromJoinCollectionInMongoDB = (modelName, filterCriteria) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("at mongoCRUD/getDataByID the modelName:", modelName);
         console.log("at mongoCRUD/getDataByID the filterCriteria:", filterCriteria);
-        const response = yield modelName.findById(filterCriteria);
+        // Check if userId is a string and convert it to ObjectId
+        if (typeof filterCriteria.userId === 'string') {
+            filterCriteria.userId = new mongodb_1.ObjectId(filterCriteria.userId);
+            console.log("at mongoCRUD/getDataByID the new filterCriteria:", filterCriteria);
+        }
+        const response = yield modelName.findOne(filterCriteria);
         console.log("at mongoCRUD/getDataByID the response is:", response);
         if (response) {
             return { ok: true, response };
@@ -117,7 +131,7 @@ const getDataByID = (modelName, filterCriteria) => __awaiter(void 0, void 0, voi
         return { ok: false, error: error.message };
     }
 }); //work ok
-exports.getDataByID = getDataByID;
+exports.getOneDataFromJoinCollectionInMongoDB = getOneDataFromJoinCollectionInMongoDB;
 //read - get a list of items by field (aggregate)
 const getXRandomDataList = (modelName, modelId, IdMongoose, listLength, dbName, localFieldName, foreignFieldName, itemName) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -156,7 +170,7 @@ const getXRandomDataList = (modelName, modelId, IdMongoose, listLength, dbName, 
 }); //work ok
 exports.getXRandomDataList = getXRandomDataList;
 //update
-const updateOneData = (modelName, filter, update) => __awaiter(void 0, void 0, void 0, function* () {
+const updateOneDataOnMongoDB = (modelName, filter, update) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log("at mongoCRUD/updateOneData the modelName", modelName);
         console.log("at mongoCRUD/updateOneData the filter", filter);
@@ -177,10 +191,10 @@ const updateOneData = (modelName, filter, update) => __awaiter(void 0, void 0, v
         return ({ ok: false, error: error.message });
     }
 }); //work ok
-exports.updateOneData = updateOneData;
+exports.updateOneDataOnMongoDB = updateOneDataOnMongoDB;
 //delete
 //item is uniq
-const deleteOneData = (modelName, item) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteOneDataFromMongoDB = (modelName, item) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield modelName.findOneAndDelete({ item });
         if (response) {
@@ -195,5 +209,5 @@ const deleteOneData = (modelName, item) => __awaiter(void 0, void 0, void 0, fun
         return ({ ok: false, error: error.message });
     }
 }); //work ok
-exports.deleteOneData = deleteOneData;
+exports.deleteOneDataFromMongoDB = deleteOneDataFromMongoDB;
 //# sourceMappingURL=mongoCRUD.js.map

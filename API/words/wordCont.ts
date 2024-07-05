@@ -7,6 +7,7 @@ import { IWordDocument, UserWordsModel, WordModel } from "./wordModel";
 export async function getWords(req: any, res: any) {
   try {
     console.log("hello from getWords");
+    //@ts-ignore
     const wordsDB = await getAllDataFromMongoDB<IWordDocument>(WordModel);
     res.send({ words: wordsDB });
   } catch (error) {

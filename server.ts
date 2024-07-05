@@ -13,25 +13,10 @@ const port = process.env.PORT || 5000;
 //middleware for using parser
 app.use(cookieParser())
 
-//static files
-// app.use(express.static("public"));
-
 //body
 app.use(express.json());
 
 import connectionMongo from "./DBConnections/mongodb";
-
-// //connect to mongoDB with mongoose
-// const mongodb_uri = process.env.MONGO_URL;
-
-// // connect to mongoDB with mongoose
-// mongoose.connect(mongodb_uri).then(() => {
-//   console.info("MongoDB connected");
-//   // addFieldToUsers("role", "user");  //update my user DB with a new field
-// })
-//   .catch(err => {
-//     console.error(err)
-//   })
 
 // get router from usersRouter
 import userRoute from "./API/users/userRoute";
