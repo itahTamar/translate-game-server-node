@@ -8,7 +8,8 @@ export async function getWords(req: any, res: any) {
   try {
     console.log("hello from getWords");
     //@ts-ignore
-    const wordsDB = await getAllDataFromMongoDB<IWordDocument>(WordModel);
+    // const wordsDB = await getAllDataFromMongoDB<IWordDocument>(WordModel);
+    const wordsDB = await getAllDataFromMongoDB<any>(WordModel);
     res.send({ words: wordsDB });
   } catch (error) {
     console.error(error);
