@@ -59,7 +59,7 @@ export async function getAllUsersWords(req: any, res: any) {
     ); //work ok
 
     // const allUserWordsIDFromDBs = await UserWordsModel.find({userId: decodedUserId}); //get all users word into array of objects with the id of the words not the words themselves
-    const userWordDocResult = await getAllDataFromMongoDB<UserWordDocument>(
+    const userWordDocResult = await getAllDataFromMongoDB(
       UserWordsModel,
       { userId: decodedUserId }
     );
@@ -144,7 +144,7 @@ export async function getXRandomUserWords(req: any, res: any) {
       UserWordsModel,
       "userId",
       userIdMongoose,
-      3,
+      10,
       "words",
       "wordsId",
       "_id",
@@ -190,10 +190,7 @@ export async function deleteUserWord(req: any, res: any) {
       );
 
     const decodedUserId = jwt.decode(userID, secret);
-    console.log(
-      "At userWordsCont getUserWords the decodedUserId:",
-      decodedUserId
-    );
+    console.log("At userWordsCont getUserWords the decodedUserId:", decodedUserId);
 
     const wordID = req.params.wordID;
     if (!wordID) throw new Error("no word id in params deleteUserWord");

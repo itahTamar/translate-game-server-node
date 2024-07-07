@@ -8,6 +8,9 @@
       "outDir": "dist",
       "types": ["mongoose"],
       "strict": false,
+      "skipLibCheck": true
     },
-    "lib": ["es2015"]
+    "lib": ["es2015"],
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules"]
   }

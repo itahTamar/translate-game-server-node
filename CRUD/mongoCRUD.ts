@@ -24,7 +24,8 @@ export const saveDataToMongoDB = async (data: any) => {
 }; //work ok
 
 //only for join collection
-export const createAndSaveDataToMongoDB = async <T extends MyDocument<IUserWordDoc>>(
+export const createAndSaveDataToMongoDB = async <
+  T extends MyDocument<IUserWordDoc>>(
   modelName: Model<MyJoinCollection<T>>,
   library1Name: string, // name of library 1
   library2Name: string, // name of library 2
@@ -35,8 +36,14 @@ export const createAndSaveDataToMongoDB = async <T extends MyDocument<IUserWordD
     console.log("at mongoCRUD/createAndSaveData the item1ID is:", item1ID);
     console.log("at mongoCRUD/createAndSaveData the item2ID is:", item2ID);
     console.log("at mongoCRUD/createAndSaveData the modelName is:", modelName);
-    console.log("at mongoCRUD/createAndSaveData the item1IdName is:", library1Name );
-    console.log("at mongoCRUD/createAndSaveData the item2IdName is:", library2Name );
+    console.log(
+      "at mongoCRUD/createAndSaveData the item1IdName is:",
+      library1Name
+    );
+    console.log(
+      "at mongoCRUD/createAndSaveData the item2IdName is:",
+      library2Name
+    );
 
     if (!item1ID || !item2ID) {
       throw new Error("Invalid item1ID or item2ID");
@@ -51,7 +58,7 @@ export const createAndSaveDataToMongoDB = async <T extends MyDocument<IUserWordD
       newJoinData
     );
 
-    const response = await saveDataToMongoDB(newJoinData)
+    const response = await saveDataToMongoDB(newJoinData);
     console.log("at mongoCRUD/createAndSaveData the response is:", response);
 
     if (response) {
@@ -65,7 +72,7 @@ export const createAndSaveDataToMongoDB = async <T extends MyDocument<IUserWordD
 
 //read - get all - find all
 export const getAllDataFromMongoDB = async <T extends Document>(
-  modelName: Model<MyDocument<T>>,
+  modelName: Model<T>,
   filterCriteria?: Record<string, any>
 ) => {
   try {
@@ -75,19 +82,7 @@ export const getAllDataFromMongoDB = async <T extends Document>(
     if (response) {
       return { ok: true, response };
     } else {
-      return { ok: false }
-    }
-  } catch (error) {
-    console.error(error);
-    return { ok: false, error: error.message };
-  }
-  try {
-    console.log("at mongoCRUD/getAllData the modelName is:", modelName);
-    const response = await modelName.find({});
-    if (response.length > 0) {
-      return { ok: true, response };
-    } else {
-      return { ok: true, response: [] };
+      return { ok: false };
     }
   } catch (error) {
     console.error(error);
@@ -116,21 +111,22 @@ export const getOneDataFromMongoDB = async <T extends Document>(
 //read - get by id
 export const getOneDataFromJoinCollectionInMongoDB = async <T extends Document>(
   modelName: Model<T>,
-  filterCriteria:{
-    wordsId: ObjectId,
-    userId: string | ObjectId
-  }  
+  filterCriteria: {
+    wordsId: ObjectId;
+    userId: string | ObjectId;
+  }
 ) => {
   try {
-    console.log("at mongoCRUD/getDataByID the modelName:", modelName)
-    console.log("at mongoCRUD/getDataByID the filterCriteria:", filterCriteria)
+    console.log("at mongoCRUD/getDataByID the modelName:", modelName);
+    console.log("at mongoCRUD/getDataByID the filterCriteria:", filterCriteria);
     // Check if userId is a string and convert it to ObjectId
-if (typeof filterCriteria.userId === 'string') {
-  filterCriteria.userId = new ObjectId(filterCriteria.userId);
-console.log("at mongoCRUD/getDataByID the new filterCriteria:", filterCriteria)
-
-}
-
+    if (typeof filterCriteria.userId === "string") {
+      filterCriteria.userId = new ObjectId(filterCriteria.userId);
+      console.log(
+        "at mongoCRUD/getDataByID the new filterCriteria:",
+        filterCriteria
+      );
+    }
     const response = await modelName.findOne(filterCriteria);
     console.log("at mongoCRUD/getDataByID the response is:", response);
     if (response) {
@@ -156,14 +152,17 @@ export const getXRandomDataList = async <T extends Document>(
   itemName: string
 ) => {
   try {
-    console.log("at mongoCRUD/getDataByID the modelName:", modelName)
-    console.log("at mongoCRUD/getDataByID the modelId:", modelId)
-    console.log("at mongoCRUD/getDataByID the IdMongoose:", IdMongoose)
-    console.log("at mongoCRUD/getDataByID the listLength:", listLength)
-    console.log("at mongoCRUD/getDataByID the dbName:", dbName)
-    console.log("at mongoCRUD/getDataByID the localFieldName:", localFieldName)
-    console.log("at mongoCRUD/getDataByID the foreignFieldName:", foreignFieldName)
-    console.log("at mongoCRUD/getDataByID the itemName:", itemName)
+    console.log("at mongoCRUD/getDataByID the modelName:", modelName);
+    console.log("at mongoCRUD/getDataByID the modelId:", modelId);
+    console.log("at mongoCRUD/getDataByID the IdMongoose:", IdMongoose);
+    console.log("at mongoCRUD/getDataByID the listLength:", listLength);
+    console.log("at mongoCRUD/getDataByID the dbName:", dbName);
+    console.log("at mongoCRUD/getDataByID the localFieldName:", localFieldName);
+    console.log(
+      "at mongoCRUD/getDataByID the foreignFieldName:",
+      foreignFieldName
+    );
+    console.log("at mongoCRUD/getDataByID the itemName:", itemName);
 
     const response = await modelName.aggregate([
       { $match: { [modelId]: IdMongoose } },
@@ -178,14 +177,14 @@ export const getXRandomDataList = async <T extends Document>(
       },
     ]);
     if (response) {
-      console.log("at mongoCRUD/getXRandomDataList the response:",response)
-      return({ ok: true, response });
+      console.log("at mongoCRUD/getXRandomDataList the response:", response);
+      return { ok: true, response };
     } else {
-      return({ ok: false });
+      return { ok: false };
     }
   } catch (error) {
     console.error(error);
-    return({ ok: false, error: error.message });
+    return { ok: false, error: error.message };
   }
 }; //work ok
 
@@ -193,26 +192,28 @@ export const getXRandomDataList = async <T extends Document>(
 export const updateOneDataOnMongoDB = async <T extends Document>(
   modelName: Model<T>,
   filter: any,
-  update: any,
+  update: any
 ) => {
   try {
-    console.log("at mongoCRUD/updateOneData the modelName", modelName)
-    console.log("at mongoCRUD/updateOneData the filter", filter)
-    console.log("at mongoCRUD/updateOneData the update", update)
-    const response = await modelName.findOneAndUpdate(filter, update, {new: true}); 
-//By default, findOneAndUpdate() returns the document as it was before update was applied.
-//You should set the new option to true to return the document after update was applied
-  if (response) {
-    console.log("at mongoCRUD/updateOneData the response", response)
-    return({ ok: true, response, massage: "The word update successfully" });
+    console.log("at mongoCRUD/updateOneDataOnMongoDB the modelName", modelName);
+    console.log("at mongoCRUD/updateOneDataOnMongoDB the filter", filter);
+    console.log("at mongoCRUD/updateOneDataOnMongoDB the update", update);
+    const response = await modelName.findOneAndUpdate(filter, update, {
+      new: true,
+    });
+    //By default, findOneAndUpdate() returns the document as it was before update was applied.
+    //You should set the new option to true to return the document after update was applied
+    if (response) {
+      console.log("at mongoCRUD/updateOneData the response", response);
+      return { ok: true, response, massage: "The word update successfully" };
     } else {
-      return({ ok: false, massage:"The word not exist nor update" });
+      return { ok: false, massage: "The word not exist nor update" };
     }
   } catch (error) {
     console.error(error);
-    return({ ok: false, error: error.message });
+    return { ok: false, error: error.message };
   }
-};  //work ok
+}; //work ok
 
 //delete
 //item is uniq
@@ -221,14 +222,20 @@ export const deleteOneDataFromMongoDB = async <T extends Document>(
   item: any
 ) => {
   try {
-    const response = await modelName.findOneAndDelete({ item });
+    console.log("At mongoCRUD/deleteOneDataFromMongoDB the modelName:", modelName)
+    console.log("At mongoCRUD/deleteOneDataFromMongoDB the item:", item)
+
+    const response = await modelName.findOneAndDelete( item );
+    console.log("At mongoCRUD/deleteOneDataFromMongoDB the response:", response)
+    if (response === null) throw new Error("response is null");
+    
     if (response) {
-      return({ ok: true });
+      return { ok: true };
     } else {
-      return({ ok: false });
+      return { ok: false };
     }
   } catch (error) {
     console.error(error);
-    return({ ok: false, error: error.message });
+    return { ok: false, error: error.message };
   }
 }; //work ok
