@@ -19,7 +19,6 @@ app.use(express.json());
 
 import connectionMongo from "./config/dbConn";
 
-app.use(cors(corsOptions))
 
 // get router from usersRouter
 import userRoute from "./API/users/userRoute";
@@ -34,6 +33,7 @@ app.use("/api/words", wordRoute);
 import userWordsRoute from "./API/userWords/userWordsRoute";
 import { corsOptions } from "./config/corsOptions";
 app.use("/api/userWords", userWordsRoute);
+app.use(cors(corsOptions))
 
 // app.use((req, res, next) => {
 //   console.log(`Received request: ${req.method} ${req.url}`);
