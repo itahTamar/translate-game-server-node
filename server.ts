@@ -3,6 +3,7 @@ import mongoose, { ConnectOptions } from 'mongoose';
 import cookieParser from 'cookie-parser';
 import {addFieldToUsers} from './API/users/updateUserDB'
 import cors from 'cors'
+import { corsOptions } from "./config/corsOptions";
 
 //npm i dotenv
 import dotenv from 'dotenv';
@@ -16,6 +17,7 @@ app.use(cookieParser())
 
 //body
 app.use(express.json());
+app.use(cors(corsOptions))
 
 import connectionMongo from "./config/dbConn";
 
@@ -31,9 +33,7 @@ app.use("/api/words", wordRoute);
 
 // get router from wordRouter
 import userWordsRoute from "./API/userWords/userWordsRoute";
-import { corsOptions } from "./config/corsOptions";
 app.use("/api/userWords", userWordsRoute);
-app.use(cors(corsOptions))
 
 // app.use((req, res, next) => {
 //   console.log(`Received request: ${req.method} ${req.url}`);
