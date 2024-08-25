@@ -3,5 +3,6 @@ export const allowedOrigins = [
     // 'https://www.tamarprojects.com',
     'http://localhost:5173',
     'test-front-vite.onrender.com',
-    'www.tamarprofile.site'
+    'www.tamarprofile.site',
+    'tamarprojects.com'
 ]
