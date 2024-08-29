@@ -10,5 +10,8 @@ export const allowedOrigins = [
     
     'test-front-vite.onrender.com',
     'www.tamarprofile.site',
-    'tamarprofile.site'
+    'tamarprofile.site',
+    'https://test-front-vite.onrender.com',
+    'https://www.tamarprofile.site',
+    'https://tamarprofile.site'
 ]
