@@ -63,7 +63,7 @@ export const login = async (req: any, res: any) => {
     const JWTCookie = jwt.encode(userDB._id, secret); //the id given by mongo is store in the cookie
     console.log("At userCont login JWTCookie:", JWTCookie); //got it here!
     res.cookie("user", JWTCookie, {
-      // httpOnly: true,  //makes the cookie inaccessible via JavaScript on the client side. It won't show up in document.cookie or the browser's developer tools.
+      httpOnly: true,  //makes the cookie inaccessible via JavaScript on the client side. It won't show up in document.cookie or the browser's developer tools.
       path: "/", // Set the path to root to make it available across the entire site
       maxAge: 1000 * 60 * 60 * 24,
     }); //send the cookie to client
