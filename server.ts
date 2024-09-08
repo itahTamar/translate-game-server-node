@@ -12,15 +12,13 @@ dotenv.config()
 const app = express(); 
 const port = process.env.PORT || 5000;
 
-//middleware for using parser
-app.use(cookieParser())
-
 //body
 app.use(express.json());
 app.use(cors(corsOptions))
 
+//middleware for using parser
+app.use(cookieParser())
 import connectionMongo from "./config/dbConn";
-
 
 // get router from usersRouter
 import userRoute from "./API/users/userRoute";

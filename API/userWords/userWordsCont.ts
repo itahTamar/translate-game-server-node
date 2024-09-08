@@ -37,6 +37,7 @@ interface UserWordDocument extends Document {
 export async function getAllUsersWords(req: any, res: any) {
   try {
     //get user id from cookie
+    console.log("hello from server getAllUserWords function")
     const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
     if (!userID)
       throw new Error(
