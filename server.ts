@@ -18,6 +18,7 @@ app.use(cors(corsOptions))
 
 //middleware for using parser
 app.use(cookieParser())
+
 import connectionMongo from "./config/dbConn";
 
 // get router from usersRouter
@@ -45,13 +46,14 @@ app.use("/api/userWords", userWordsRoute);
 const connectToMongoDB = async () => {
   try {
     await connectionMongo;
-    // console.info("MongoDB connected");
-    // addFieldToUsers("role", "user"); // Update user DB with a new field
+    // Update user DB with a new field - enter new fieldName and defaultValue and save & run "npm run dev"
+        // addFieldToUsers("email", "none"); 
   } catch (err) {
     console.error(err);
     process.exit(1); // Exit the process with a non-zero code
   }
 };
+
 connectToMongoDB()
   .then(() => {
     app.use((req, res, next) => {

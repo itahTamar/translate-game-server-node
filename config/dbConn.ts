@@ -6,7 +6,8 @@ const connectionMongo = mongoose
   .connect(mongodb_uri)
   .then(() => {
     console.info("MongoDB connected");
-    // addFieldToUsers("role", "user");  //update my user DB with a new field
+    // Update user DB with a new field - enter new fieldName and defaultValue and save & run "npm run dev"
+    // addFieldToUsers("email", "none");  
   })
   .catch((err) => {
     console.error(err);
