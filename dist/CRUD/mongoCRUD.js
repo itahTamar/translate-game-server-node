@@ -75,20 +75,6 @@ const getAllDataFromMongoDB = (modelName, filterCriteria) => __awaiter(void 0, v
         console.error(error);
         return { ok: false, error: error.message };
     }
-    try {
-        console.log("at mongoCRUD/getAllData the modelName is:", modelName);
-        const response = yield modelName.find({});
-        if (response.length > 0) {
-            return { ok: true, response };
-        }
-        else {
-            return { ok: true, response: [] };
-        }
-    }
-    catch (error) {
-        console.error(error);
-        return { ok: false, error: error.message };
-    }
 }); //work ok
 exports.getAllDataFromMongoDB = getAllDataFromMongoDB;
 //read - get one - find one
@@ -113,7 +99,7 @@ const getOneDataFromJoinCollectionInMongoDB = (modelName, filterCriteria) => __a
         console.log("at mongoCRUD/getDataByID the modelName:", modelName);
         console.log("at mongoCRUD/getDataByID the filterCriteria:", filterCriteria);
         // Check if userId is a string and convert it to ObjectId
-        if (typeof filterCriteria.userId === 'string') {
+        if (typeof filterCriteria.userId === "string") {
             filterCriteria.userId = new mongodb_1.ObjectId(filterCriteria.userId);
             console.log("at mongoCRUD/getDataByID the new filterCriteria:", filterCriteria);
         }
@@ -157,38 +143,40 @@ const getXRandomDataList = (modelName, modelId, IdMongoose, listLength, dbName, 
         ]);
         if (response) {
             console.log("at mongoCRUD/getXRandomDataList the response:", response);
-            return ({ ok: true, response });
+            return { ok: true, response };
         }
         else {
-            return ({ ok: false });
+            return { ok: false };
         }
     }
     catch (error) {
         console.error(error);
-        return ({ ok: false, error: error.message });
+        return { ok: false, error: error.message };
     }
 }); //work ok
 exports.getXRandomDataList = getXRandomDataList;
 //update
 const updateOneDataOnMongoDB = (modelName, filter, update) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("at mongoCRUD/updateOneData the modelName", modelName);
-        console.log("at mongoCRUD/updateOneData the filter", filter);
-        console.log("at mongoCRUD/updateOneData the update", update);
-        const response = yield modelName.findOneAndUpdate(filter, update, { new: true });
+        console.log("at mongoCRUD/updateOneDataOnMongoDB the modelName", modelName);
+        console.log("at mongoCRUD/updateOneDataOnMongoDB the filter", filter);
+        console.log("at mongoCRUD/updateOneDataOnMongoDB the update", update);
+        const response = yield modelName.findOneAndUpdate(filter, update, {
+            new: true,
+        });
         //By default, findOneAndUpdate() returns the document as it was before update was applied.
         //You should set the new option to true to return the document after update was applied
         if (response) {
             console.log("at mongoCRUD/updateOneData the response", response);
-            return ({ ok: true, response, massage: "The word update successfully" });
+            return { ok: true, response, massage: "The word update successfully" };
         }
         else {
-            return ({ ok: false, massage: "The word not exist nor update" });
+            return { ok: false, massage: "The word not exist nor update" };
         }
     }
     catch (error) {
         console.error(error);
-        return ({ ok: false, error: error.message });
+        return { ok: false, error: error.message };
     }
 }); //work ok
 exports.updateOneDataOnMongoDB = updateOneDataOnMongoDB;
@@ -196,17 +184,22 @@ exports.updateOneDataOnMongoDB = updateOneDataOnMongoDB;
 //item is uniq
 const deleteOneDataFromMongoDB = (modelName, item) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield modelName.findOneAndDelete({ item });
+        console.log("At mongoCRUD/deleteOneDataFromMongoDB the modelName:", modelName);
+        console.log("At mongoCRUD/deleteOneDataFromMongoDB the item:", item);
+        const response = yield modelName.findOneAndDelete(item);
+        console.log("At mongoCRUD/deleteOneDataFromMongoDB the response:", response);
+        if (response === null)
+            throw new Error("response is null");
         if (response) {
-            return ({ ok: true });
+            return { ok: true };
         }
         else {
-            return ({ ok: false });
+            return { ok: false };
         }
     }
     catch (error) {
         console.error(error);
-        return ({ ok: false, error: error.message });
+        return { ok: false, error: error.message };
     }
 }); //work ok
 exports.deleteOneDataFromMongoDB = deleteOneDataFromMongoDB;

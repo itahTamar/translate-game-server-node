@@ -12,6 +12,7 @@ class User {
         this.password = password;
         this.role = "user";
         this.highScore = 0;
+        this.email = "none";
     }
     setRole(role) {
         this.role = role;
@@ -23,7 +24,8 @@ exports.userSchema = new mongoose_2.default.Schema({
     userName: { type: String, required: true },
     password: { type: String, required: true },
     highScore: { type: Number, default: 0 }, // Add the new field with a default value
-    role: { type: String, default: "user" }
+    role: { type: String, default: "user" },
+    email: { type: String, default: "none" }
 });
 //"users" is the name of the collection in the DB
 exports.UserModel = (0, mongoose_1.model)("users", exports.userSchema);

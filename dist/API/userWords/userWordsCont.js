@@ -37,6 +37,7 @@ function getAllUsersWords(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             //get user id from cookie
+            console.log("hello from server getAllUserWords function");
             const userID = req.cookies.user; //unique id. get the user id from the cookie - its coded!
             if (!userID)
                 throw new Error("At userWordsCont getAllUsersWords: userID not found in cookie");
@@ -90,7 +91,7 @@ function getXRandomUserWords(req, res) {
             console.log("At userWordsCont/getXRandomUserWords the decodedUserId:", decodedUserId);
             const userIdMongoose = new ObjectId(decodedUserId);
             console.log("At userWordsCont/getXRandomUserWords the userIdMongoose:", userIdMongoose);
-            const userWordsListResult = yield (0, mongoCRUD_1.getXRandomDataList)(wordModel_1.UserWordsModel, "userId", userIdMongoose, 3, "words", "wordsId", "_id", "word");
+            const userWordsListResult = yield (0, mongoCRUD_1.getXRandomDataList)(wordModel_1.UserWordsModel, "userId", userIdMongoose, 10, "words", "wordsId", "_id", "word");
             console.log("At userWordsCont/getXRandomUserWords the userWordsListResult:", userWordsListResult);
             const userWordsList = userWordsListResult.response;
             console.log("At userWordsCont/getXRandomUserWords the userWordsList:", userWordsList);

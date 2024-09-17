@@ -56,10 +56,4 @@ const UserWordsSchema = new mongoose_1.default.Schema({
 // Create a unique compound index for UserWordsSchema
 UserWordsSchema.index({ wordsId: 1, userId: 1 }, { unique: true });
 exports.UserWordsModel = (0, mongoose_1.model)("UserWords", UserWordsSchema);
-// export const UserWordsModel: Model<
-//   MyJoinCollection<IUserWordDoc, IUserWordDoc>
-// > = model<MyJoinCollection<IUserWordDoc, IUserWordDoc>>(
-//   "UserWords",
-//   UserWordsSchema
-// );
 //# sourceMappingURL=wordModel.js.map

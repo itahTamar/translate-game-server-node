@@ -10,7 +10,8 @@ router
     .get('/get-words', wordCont_1.getWords)
     // .get('/get-word-by-id', getWordByID)
     .post('/add-word', wordCont_1.addWord)
-    .patch('/updateWord/:wordID', wordCont_1.updateWord);
+    .patch('/updateWordFieldByWordId/:wordID', wordCont_1.updateWordFieldByWordId);
+// .patch('/updateWord/:wordID', updateWord)
 // .delete('/deleteWordById/:wordID', deleteWordById);
 exports.default = router;
 //# sourceMappingURL=wordRoute.js.map

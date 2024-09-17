@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateWord = exports.addWord = exports.getWords = void 0;
+exports.updateWordFieldByWordId = exports.addWord = exports.getWords = void 0;
 const jwt_simple_1 = __importDefault(require("jwt-simple"));
 const mongoCRUD_1 = require("../../CRUD/mongoCRUD");
 const mongoCRUD_2 = require("./../../CRUD/mongoCRUD");
@@ -23,6 +23,7 @@ function getWords(req, res) {
         try {
             console.log("hello from getWords");
             //@ts-ignore
+            // const wordsDB = await getAllDataFromMongoDB<IWordDocument>(WordModel);
             const wordsDB = yield (0, mongoCRUD_1.getAllDataFromMongoDB)(wordModel_1.WordModel);
             res.send({ words: wordsDB });
         }
@@ -112,32 +113,25 @@ exports.addWord = addWord;
 //     console.error(error);
 //   }
 // } 
-//update thw word in words.db (wil update for all users using this word)
-function updateWord(req, res) {
+//update thw word in words.db (will update for all users using this word)
+function updateWordFieldByWordId(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const wordID = req.params.wordID;
             if (!wordID)
                 throw new Error("no word id in params updateWord");
-            console.log("at wordCont/updateWord the wordID:", wordID);
-            const { en_word, he_word } = req.body;
-            if (!en_word || !he_word)
-                throw new Error("no word in body");
-            const updateWordData = { en_word, he_word };
-            //find the word in DB by word_id and update
+            console.log("at wordCont/updateWordFieldByWordId the wordID:", wordID);
+            const { field } = req.body;
+            console.log("at wordCont/updateWordFieldByWordId the field:", field); //ok
+            const { updateData } = req.body;
+            if (!field || !updateData)
+                throw new Error("missing data required field or updateData");
+            const updateWordData = { [field]: updateData };
+            console.log("at wordCont/updateWordFieldByWordId the updateWordData:", updateWordData);
+            //find the word in DB by word_id and update the require field
             const wordExistAndUpdate = yield (0, mongoCRUD_1.updateOneDataOnMongoDB)(wordModel_1.WordModel, { _id: wordID }, updateWordData);
-            console.log("at wordCont/updateWord the wordExistAndUpdate", wordExistAndUpdate);
+            console.log("at wordCont/updateWordFieldByWordId the wordExistAndUpdate", wordExistAndUpdate);
             res.send(wordExistAndUpdate);
-            //at wordCont/updateWord the wordExistAndUpdate {
-            //   ok: true,
-            //   response: {
-            //        _id: new ObjectId("66571ff99d66a29097bae66d"),
-            //        en_word: 'the update en_word',
-            //        he_word:'the update he_word',
-            //        __v: 0
-            //   },
-            //   massage: 'The word update successfully'
-            // }
         }
         catch (error) {
             console.error(error);
@@ -145,7 +139,35 @@ function updateWord(req, res) {
         }
     });
 } //work ok
-exports.updateWord = updateWord;
+exports.updateWordFieldByWordId = updateWordFieldByWordId;
+//old virion
+// export async function updateWord(req: any, res: any) {
+//   try {
+//     const wordID = req.params.wordID;
+//     if (!wordID) throw new Error("no word id in params updateWord");
+//     console.log("at wordCont/updateWord the wordID:", wordID);
+//     const { en_word, he_word } = req.body;
+//     if (!en_word || !he_word) throw new Error("no word in body");
+//     const updateWordData = {en_word, he_word}
+//     //find the word in DB by word_id and update
+//     const wordExistAndUpdate = await updateOneDataOnMongoDB(WordModel, { _id: wordID }, updateWordData)
+//     console.log("at wordCont/updateWord the wordExistAndUpdate", wordExistAndUpdate)
+//       res.send(wordExistAndUpdate);
+//       //at wordCont/updateWord the wordExistAndUpdate {
+//           //   ok: true,
+//           //   response: {
+//           //        _id: new ObjectId("66571ff99d66a29097bae66d"),
+//           //        en_word: 'the update en_word',
+//           //        he_word:'the update he_word',
+//           //        __v: 0
+//           //   },
+//           //   massage: 'The word update successfully'
+//           // }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ error: error.message });
+//   }
+// } //work ok
 //! delete word from all DB (admin only) - not use yet
 //1. delete the word by id from all user-word-model (no need for userID)
 //2. delete the word by id from word-model
