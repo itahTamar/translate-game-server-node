@@ -1,9 +1,10 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import mongoose, { ConnectOptions } from 'mongoose';
 import cookieParser from 'cookie-parser';
 import {addFieldToUsers} from './API/users/updateUserDB'
 import cors from 'cors'
 import { corsOptions } from "./config/corsOptions";
+import { sendEmail } from './services/mailService'; // Import the sendEmail function
 
 //npm i dotenv
 import dotenv from 'dotenv';
@@ -12,8 +13,9 @@ dotenv.config()
 const app = express(); 
 const port = process.env.PORT || 5000;
 
-//body
+//middlewares
 app.use(express.json());
+app.use(express.urlencoded({limit: '25mb'})); //parses incoming URL-encoded data (like form submissions) and add it to req.body. it limit the size of the request body.
 app.use(cors(corsOptions))
 
 //middleware for using parser
@@ -21,6 +23,7 @@ app.use(cookieParser())
 
 import connectionMongo from "./config/dbConn";
 
+//API routes
 // get router from usersRouter
 import userRoute from "./API/users/userRoute";
 
@@ -34,15 +37,14 @@ app.use("/api/words", wordRoute);
 import userWordsRoute from "./API/userWords/userWordsRoute";
 app.use("/api/userWords", userWordsRoute);
 
-// app.use((req, res, next) => {
-//   console.log(`Received request: ${req.method} ${req.url}`);
-//   next();
-// });
+// Route for sending recovery email
+app.post("/send_recovery_email", (req: Request, res: Response) => {
+  sendEmail(req.body)
+    .then((response) => res.send(response.message))
+    .catch((error) => res.status(500).send(error.message));
+});
 
-// app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`);
-// });
-
+// Connect to MongoDB
 const connectToMongoDB = async () => {
   try {
     await connectionMongo;
