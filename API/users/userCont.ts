@@ -2,6 +2,7 @@ import { UserModel } from "./userModel";
 import bcrypt from "bcrypt";
 import jwt from "jwt-simple";
 import mongoose from 'mongoose';
+import { getOneDataFromMongoDB } from './../../CRUD/mongoCRUD';
 
 const { JWT_SECRET } = process.env;
 const secret = JWT_SECRET;
@@ -177,3 +178,20 @@ export async function saveUserScore(req: any, res: any) {
     
   //res.send({ ok: true, highScore: userDB.highScore });
 }
+
+//check if the user email is existing in DB, return true or false
+export async function isEmailExist(req: any, res: any) {
+  try {
+      console.log("isEmailExist function")
+      const filterCriteria = req.body.recipient_email 
+      const dataDB = await getOneDataFromMongoDB<any>(UserModel, {email: filterCriteria})
+      console.log("At isEmailExist dataDB:", dataDB)
+      console.log("At isEmailExist dataDB.ok:", dataDB.ok)
+      return dataDB.ok
+      // res.send(dataDB.ok) //the response is true (exist) or false (not)
+  } catch (error) {
+      console.error(error)
+      // res.send(error)
+      return error
+  }
+} //work ok

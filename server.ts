@@ -35,13 +35,18 @@ app.use("/api/words", wordRoute);
 
 // get router from wordRouter
 import userWordsRoute from "./API/userWords/userWordsRoute";
+import { isEmailExist } from "./API/users/userCont";
 app.use("/api/userWords", userWordsRoute);
 
 // Route for sending recovery email
 app.post("/send_recovery_email", (req: Request, res: Response) => {
-  sendEmail(req.body)
+  if (isEmailExist(req, res)){
+    sendEmail(req.body)
     .then((response) => res.send(response.message))
-    .catch((error) => res.status(500).send(error.message));
+    .catch((error) => res.status(500).send(error.message));  
+  } else {
+    res.send("User email is not register, please register first")
+  }
 });
 
 // Connect to MongoDB
