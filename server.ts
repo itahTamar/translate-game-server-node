@@ -39,13 +39,19 @@ import { isEmailExist } from "./API/users/userCont";
 app.use("/api/userWords", userWordsRoute);
 
 // Route for sending recovery email
-app.post("/send_recovery_email", (req: Request, res: Response) => {
-  if (isEmailExist(req, res)){
-    sendEmail(req.body)
-    .then((response) => res.send(response.message))
-    .catch((error) => res.status(500).send(error.message));  
-  } else {
-    res.send("User email is not register, please register first")
+app.post("/send_recovery_email", async (req: Request, res: Response) => {
+  try { 
+    const emailExists = await isEmailExist(req, res);  // Await the async function
+    if (emailExists) {
+      sendEmail(req.body)
+      .then((response) => res.send(response.message))
+      .catch((error) => res.status(500).send(error.message));  
+    } else {
+      res.send("User email is not register, please register first")
+    }
+  } catch (error){
+    console.error(error);
+    res.status(500).send("Error while checking email existence");
   }
 });
 

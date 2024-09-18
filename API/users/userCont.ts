@@ -14,22 +14,26 @@ export const registerUser = async (req: any, res: any) => {
   try {
     console.log("hello from server registerUser");
 
-    const { userName, password } = req.body;
-    console.log({ userName }, { password });
-    if (!userName || !password)
+    const { userName, email, password } = req.body;
+    console.log({ userName }, { password }, {email});
+    if (!userName || !password || !email)
       throw new Error("At userCont-registerUser complete all fields");
-
+ //check if email exist already, if so reject the registration
+ const emailExists = await isEmailExist(req);  // Await the result
+ if (emailExists) {  //if email exist (true)
+   res.send({ok: false, massage: "Email exist"})
+ } else {
     //encode password with bcrypt.js
     const hash = await bcrypt.hash(password, saltRounds);
 
-    const user = new UserModel({ userName, password: hash });
+    const user = new UserModel({ userName, email, password: hash });
     const userDB = await user.save(); //if there is problem saving in DB it catch the error
     console.log(userDB);
     if (userDB) {
       res.send({ ok: true });
     } else {
       res.send({ ok: false });
-    }
+    }}
   } catch (error) {
     console.error(error);
     res.send({ ok: false, error: "server error at register-user" });
@@ -39,12 +43,12 @@ export const registerUser = async (req: any, res: any) => {
 //login user
 export const login = async (req: any, res: any) => {
   try {
-    const { userName, password } = req.body;
-    console.log("At userCont login:", { userName, password });
-    if (!userName || !password)
+    const { userName, email, password } = req.body;
+    console.log("At userCont login:", { userName, email, password });
+    if (!userName || !password || !email)
       throw new Error("At userCont login: complete all fields");
     //check if user exist and password is correct
-    const userDB = await UserModel.findOne({ userName });
+    const userDB = await UserModel.findOne({ userName, email });
 
     if (!userDB)
       throw new Error("At userCont login: some of the details are incorrect");
@@ -180,10 +184,10 @@ export async function saveUserScore(req: any, res: any) {
 }
 
 //check if the user email is existing in DB, return true or false
-export async function isEmailExist(req: any, res: any) {
+export async function isEmailExist(req: any, res?: any) {
   try {
       console.log("isEmailExist function")
-      const filterCriteria = req.body.recipient_email 
+      const filterCriteria = req.body.email 
       const dataDB = await getOneDataFromMongoDB<any>(UserModel, {email: filterCriteria})
       console.log("At isEmailExist dataDB:", dataDB)
       console.log("At isEmailExist dataDB.ok:", dataDB.ok)
