@@ -2,10 +2,10 @@ import nodemailer from 'nodemailer';
 
 interface EmailOptions {
   recipient_email: string;
-  OTP: string;
 }
 
-export function sendEmail({ recipient_email, OTP }: EmailOptions): Promise<{ message: string }> {
+export function sendEmail({ recipient_email}: EmailOptions): Promise<{ ok: boolean, otp: number, message: string }> {
+  const OTP = Math.floor(Math.random() * 9000 + 1000);
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -48,7 +48,7 @@ export function sendEmail({ recipient_email, OTP }: EmailOptions): Promise<{ mes
         console.log(error);
         return reject({ message: "An error has occurred" });
       }
-      return resolve({ message: "Email sent successfully" });
+      return resolve({ ok: true, otp: OTP ,message: "Email sent successfully" });
     });
   });
 }

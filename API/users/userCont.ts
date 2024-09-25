@@ -187,7 +187,7 @@ export async function saveUserScore(req: any, res: any) {
 export async function isEmailExist(req: any, res?: any) {
   try {
       console.log("isEmailExist function")
-      const filterCriteria = req.body.email 
+      const filterCriteria = req.body.recipient_email 
       const dataDB = await getOneDataFromMongoDB<any>(UserModel, {email: filterCriteria})
       console.log("At isEmailExist dataDB:", dataDB)
       console.log("At isEmailExist dataDB.ok:", dataDB.ok)
