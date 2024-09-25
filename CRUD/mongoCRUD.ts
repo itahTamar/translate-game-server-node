@@ -96,9 +96,9 @@ export const getOneDataFromMongoDB = async <T extends Document>(
   filterCriteria: Record<string, any>
 ) => {
   try {
-    console.log("at mongoCRUD/getOneData the modelName is:", modelName);
+    console.log("at mongoCRUD/getOneDataFromMongoDB the modelName is:", modelName);
     const response = await modelName.findOne(filterCriteria);
-    console.log("at mongoCRUD/getOneData the response is:", response);
+    console.log("at mongoCRUD/getOneDataFromMongoDB the response is:", response);
     if (response) {
       return { ok: true, response };
     }

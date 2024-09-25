@@ -44,7 +44,7 @@ app.post("/send_recovery_email", async (req: Request, res: Response) => {
     const emailExists = await isEmailExist(req, res);  // Await the async function
     if (emailExists) {
       sendEmail(req.body)
-      .then((response) => res.send(response.message))
+      .then((response) => res.send(response))
       .catch((error) => res.status(500).send(error.message));  
     } else {
       res.send("User email is not register, please register first")

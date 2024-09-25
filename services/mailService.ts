@@ -4,7 +4,8 @@ interface EmailOptions {
   recipient_email: string;
 }
 
-export function sendEmail({ recipient_email}: EmailOptions): Promise<{ ok: boolean, otp: number, message: string }> {
+export function sendEmail({recipient_email}: EmailOptions): Promise<{ ok: boolean, otp: number, message: string }> {
+  console.log("hi from sendEmail fun")
   const OTP = Math.floor(Math.random() * 9000 + 1000);
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
@@ -48,6 +49,7 @@ export function sendEmail({ recipient_email}: EmailOptions): Promise<{ ok: boole
         console.log(error);
         return reject({ message: "An error has occurred" });
       }
+      console.log("At sendEmail the resolve is:", { ok: true, otp: OTP ,message: "Email sent successfully" })
       return resolve({ ok: true, otp: OTP ,message: "Email sent successfully" });
     });
   });
