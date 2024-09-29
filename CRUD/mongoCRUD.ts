@@ -215,6 +215,36 @@ export const updateOneDataOnMongoDB = async <T extends Document>(
   }
 }; //work ok
 
+//find one and update many
+export const findOneAndUpdateDataOnMongoDB = async <T extends Document>(
+  modelName: Model<T>,       // Generic model passed to the function
+  filter: Record<string, any>, // Filter criterion (e.g., email, ID, etc.)
+  update: Record<string, any>  // Fields to update
+) => {
+  try {
+    console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB the modelName", modelName);
+    console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB the filter", filter);
+    console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB the update", update);
+
+    // Find a document by the filter and update the specified fields
+    const response = await modelName.findOneAndUpdate(filter, { $set: update }, {
+      //$set Operator: This ensures that the fields passed in the update object are updated in the document. 
+      //You can pass multiple fields for updating.
+      new: true,  // Return the updated document
+    });
+
+    if (response) {
+      console.log("at mongoCRUD/findOneAndUpdateDataOnMongoDB the response", response);
+      return { ok: true, response, message: "Document updated successfully" };
+    } else {
+      return { ok: false, message: "Document not found or update failed" };
+    }
+  } catch (error) {
+    console.error("at mongoCRUD/findOneAndUpdateDataOnMongoDB error", error);
+    return { ok: false, error: error.message };
+  }
+}; //work ok
+
 //delete
 //item is uniq
 export const deleteOneDataFromMongoDB = async <T extends Document>(

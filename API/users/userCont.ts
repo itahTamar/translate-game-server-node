@@ -2,7 +2,7 @@ import { UserModel } from "./userModel";
 import bcrypt from "bcrypt";
 import jwt from "jwt-simple";
 import mongoose from 'mongoose';
-import { getOneDataFromMongoDB } from './../../CRUD/mongoCRUD';
+import { findOneAndUpdateDataOnMongoDB, getOneDataFromMongoDB } from './../../CRUD/mongoCRUD';
 
 const { JWT_SECRET } = process.env;
 const secret = JWT_SECRET;
@@ -187,15 +187,49 @@ export async function saveUserScore(req: any, res: any) {
 export async function isEmailExist(req: any, res?: any) {
   try {
       console.log("isEmailExist function")
-      const filterCriteria = req.body.recipient_email 
+      const filterCriteria = req.body.recipient_email  || req.body.email
       const dataDB = await getOneDataFromMongoDB<any>(UserModel, {email: filterCriteria})
       console.log("At isEmailExist dataDB:", dataDB)
       console.log("At isEmailExist dataDB.ok:", dataDB.ok)
       return dataDB.ok
-      // res.send(dataDB.ok) //the response is true (exist) or false (not)
   } catch (error) {
       console.error(error)
-      // res.send(error)
       return error
   }
 } //work ok
+
+  //reset user password
+  export const resetPassword = async (req: any, res: any) => {
+    try {
+      console.log("hello from server resetPassword");
+      
+      const { email, password } = req.body;
+      console.log({ password }, {email});
+      if (!password || !email)
+        throw new Error("At userCont-resetPassword complete all fields");
+  
+      //check if email exist , if so update the user password
+      const isEmailExists = await isEmailExist(req);  // Await the result
+console.log("at resetPassword the isEmailExists answer is:", isEmailExists)
+
+      if (!isEmailExists) {  //if email not exist (false)
+        res.send({ok: false, massage: "Email not exist"})
+      } else {
+
+      //encode password with bcrypt.js
+      const hash = await bcrypt.hash(password, saltRounds);
+      console.log("hash:", hash);
+       
+      const userDB = await findOneAndUpdateDataOnMongoDB(UserModel ,{email}, {password: hash})
+      console.log("userDB:",userDB);
+
+      if (userDB) {
+        res.send({ ok: true });
+      } else {
+        res.send({ ok: false });
+      }}
+    } catch (error) {
+      console.error(error);
+      res.send({ ok: false, error: "server error at register-user" });
+    }
+  }; //work ok
