@@ -132,6 +132,42 @@ export async function updateUser(req: any, res: any) {
   }
 }
 
+  //update user details
+  export const UpdateUserDetails = async (req: any, res: any) => {
+    try {
+      console.log("hello from server resetPassword");
+      
+      const { userName, email, password } = req.body;
+      console.log({userName}, { password }, {email});
+      if (!password || !email ||!userName)
+        throw new Error("At userCont-UpdateUserDetails complete all fields");
+  
+      //check if user exist ,by email, if so update the user details
+      const isEmailExists = await isEmailExist(req);  // Await the result
+      console.log("at resetPassword the isEmailExists answer is:", isEmailExists)
+
+      if (!isEmailExists) {  //if email not exist (false)
+        res.send({ok: false, massage: "Email not exist"})
+      } else {
+
+      //encode password with bcrypt.js
+      const hash = await bcrypt.hash(password, saltRounds);
+      console.log("hash:", hash);
+       
+      const userDB = await findOneAndUpdateDataOnMongoDB(UserModel ,{email}, {password: hash, userName, email})
+      console.log("userDB:",userDB);
+
+      if (userDB) {
+        res.send({ ok: true });
+      } else {
+        res.send({ ok: false });
+      }}
+    } catch (error) {
+      console.error(error);
+      res.send({ ok: false, error: "server error at register-user" });
+    }
+  }; //work ok
+
 export async function getUserHighScore(req: any, res: any) {
   const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
   if (!userID)
