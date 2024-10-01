@@ -38,6 +38,11 @@ export const WordSchema = new Schema({
     type: String,
     required: true,
   },
+  dateAdded: {
+    type: Date,
+    default: Date.now, //set the current date when a word is created
+    require: true,
+  }
 });
 
 // Create a unique compound index for en_word, he_word

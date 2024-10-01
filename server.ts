@@ -60,7 +60,7 @@ const connectToMongoDB = async () => {
   try {
     await connectionMongo;
     // Update user DB with a new field - enter new fieldName and defaultValue and save & run "npm run dev"
-        // addFieldToUsers("email", "none"); 
+        // addFieldToUsers("name of new field", "initial value"); 
   } catch (err) {
     console.error(err);
     process.exit(1); // Exit the process with a non-zero code
