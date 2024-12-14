@@ -16,7 +16,7 @@ export const registerUser = async (req: any, res: any) => {
 
     const { userName, email, password } = req.body;
     console.log({ userName }, { password }, {email});
-    consol.log(userName, email, password);
+    console.log(userName, email, password);
     if (!userName || !password || !email)
       throw new Error("At userCont-registerUser complete all fields");
  //check if email exist already, if so reject the registration
@@ -225,7 +225,7 @@ export async function isEmailExist(req: any, res?: any) {
   try {
       console.log("isEmailExist function")
       const filterCriteria = req.body.recipient_email  || req.body.email
-      consol.log("At isEmailExist the filterCriteria is:", filterCriteria);
+      console.log("At isEmailExist the filterCriteria is:", filterCriteria);
       const dataDB = await getOneDataFromMongoDB<any>(UserModel, {email: filterCriteria})
       console.log("At isEmailExist dataDB:", dataDB)
       console.log("At isEmailExist dataDB.ok:", dataDB.ok)
