@@ -98,10 +98,13 @@ export const getOneDataFromMongoDB = async <T extends Document>(
   try {
     console.log("at mongoCRUD/getOneDataFromMongoDB the modelName is:", modelName);
      console.log("at mongoCRUD/getOneDataFromMongoDB the filterCriteria is:", filterCriteria);
-    const response = await modelName.findOne(filterCriteria);
+    const response = await modelName.findOne(filterCriteria); //if the document not found it return "null"
     console.log("at mongoCRUD/getOneDataFromMongoDB the response is:", response);
     if (response) {
       return { ok: true, response };
+    }
+   if (response === null) {
+      return {ok: false} //the document nor found in DB
     }
   } catch (error) {
     console.error(error);
