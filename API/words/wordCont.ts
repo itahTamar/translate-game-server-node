@@ -44,8 +44,8 @@ export async function addWord(req: any, res: any) {
       en_word: word.en_word,
       he_word: word.he_word,
     });
-    console.log("At wordCont/addWord isWordExist:", isWordExist); //isWordExist: {ok: true, response: {_id: , en_word:"" , he_word: ""}}
-    if (isWordExist) {
+    console.log("At wordCont/addWord isWordExist:", isWordExist); //isWordExist: {ok: true, response: {_id: , en_word:"" , he_word: ""}} or {ok: false}
+    if (isWordExist.ok) {
       console.log("This word already exist in word-DB");
       wordDBid = isWordExist.response._id;
       console.log("At wordCont/addWord wordDBid:", wordDBid);
