@@ -25,9 +25,9 @@ export async function addWord(req: any, res: any) {
     console.log("At addWord the userID from cookies: ", { userID }); //work ok
     const secret = process.env.JWT_SECRET;
     if (!secret)
-      throw new Error("At userCont getUser: Couldn't load secret from .env");
+      throw new Error("At wordCont addWord: Couldn't load secret from .env");
     const decodedUserId = jwt.decode(userID, secret);
-    console.log("At userCont getUser the decodedUserId:", decodedUserId); //work ok
+    console.log("At wordCont addWord the decodedUserId:", decodedUserId); //work ok
     const { en_word, he_word } = req.body;
     console.log("At wordCont/addWord the req.body:", { en_word, he_word }); // work ok
     if (!en_word || !he_word)
