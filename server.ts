@@ -1,8 +1,6 @@
-import express, { Request, Response } from "express";
-import mongoose, { ConnectOptions } from 'mongoose';
 import cookieParser from 'cookie-parser';
-import {addFieldToUsers} from './API/users/updateUserDB'
-import cors from 'cors'
+import cors from 'cors';
+import express, { Request, Response } from "express";
 import { corsOptions } from "./config/corsOptions";
 import { sendEmail } from './services/mailService'; // Import the sendEmail function
 

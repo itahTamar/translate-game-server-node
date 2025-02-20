@@ -1,12 +1,15 @@
+import fs from "fs";
+import path from "path";
 import jwt from "jwt-simple";
+import { Response } from "express";
 import { Document, ObjectId } from "mongoose";
 import {
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
   getOneDataFromJoinCollectionInMongoDB,
-  getXRandomDataList
+  getXRandomDataList,
 } from "../../CRUD/mongoCRUD";
-import { UserWordsModel, WordModel } from "./../words/wordModel";
+import { IUserWordDoc, UserWordsModel, WordModel } from "./../words/wordModel";
 
 let ObjectId = require("mongoose").Types.ObjectId;
 
@@ -34,10 +37,10 @@ interface UserWordDocument extends Document {
 //   return userWordDocument;
 // }
 
-export async function getAllUsersWords(req: any, res: any) {
+export async function getAllUsersWords(req: any, res?: any) {
   try {
     //get user id from cookie
-    console.log("hello from server getAllUserWords function")
+    console.log("hello from server getAllUserWords function");
     const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
     if (!userID)
       throw new Error(
@@ -60,10 +63,9 @@ export async function getAllUsersWords(req: any, res: any) {
     ); //work ok
 
     // const allUserWordsIDFromDBs = await UserWordsModel.find({userId: decodedUserId}); //get all users word into array of objects with the id of the words not the words themselves
-    const userWordDocResult = await getAllDataFromMongoDB(
-      UserWordsModel,
-      { userId: decodedUserId }
-    );
+    const userWordDocResult = await getAllDataFromMongoDB(UserWordsModel, {
+      userId: decodedUserId,
+    });
     if (!userWordDocResult.ok) throw new Error(userWordDocResult.error);
     console.log(
       "At userWordsCont getAllUsersWords the userWordDocResult:",
@@ -99,11 +101,20 @@ export async function getAllUsersWords(req: any, res: any) {
       extractedResponses
     );
 
-    res.send({ ok: true, words: extractedResponses });
-    // res.send({ ok: true, words: allUserWordsArray});
-  } catch (error) {
+    // If `res` is provided, it means the function was called as an API endpoint
+    if (res) {
+      return res.send({ ok: true, words: extractedResponses });
+    }
+
+    // Otherwise, return the data for internal use (like in exportUserWordsAsCSV)
+    return extractedResponses;
+
+    } catch (error) {
     console.error(error);
-    res.status(500).send({ ok: false, error: error.message });
+    if (res) {
+      return res.status(500).send({ ok: false, error: error.message });
+    }
+    throw error; // Rethrow error if called without `res`
   }
 } //work ok
 
@@ -191,7 +202,10 @@ export async function deleteUserWord(req: any, res: any) {
       );
 
     const decodedUserId = jwt.decode(userID, secret);
-    console.log("At userWordsCont getUserWords the decodedUserId:", decodedUserId);
+    console.log(
+      "At userWordsCont getUserWords the decodedUserId:",
+      decodedUserId
+    );
 
     const wordID = req.params.wordID;
     if (!wordID) throw new Error("no word id in params deleteUserWord");
@@ -209,5 +223,54 @@ export async function deleteUserWord(req: any, res: any) {
     }
   } catch (error) {
     console.error(error, "at wordCont/deleteUserWord delete failed");
+  }
+} //work ok
+
+//export user-words to csv file
+export async function exportUserWordsAsCSV(req: any, res: Response) {
+  try {
+    console.log("Exporting user words to CSV...");
+
+    // Get user words using the existing getAllUsersWords() function
+    const mockRes = {
+      send: (data: any) => data, // Intercept send to capture the response
+      status: (code: number) => ({
+        json: (data: any) => ({ ...data, status: code }),
+      }),
+    };
+
+    const userWordsResponse: any = await getAllUsersWords(req, mockRes);
+    if (!userWordsResponse.ok || !userWordsResponse.words.length) {
+      return res.status(404).json({ error: "No words found for this user" });
+    }
+    console.log("userWordsResponse:", userWordsResponse);
+    console.log("userWordsResponse.ok:", userWordsResponse.ok);
+    console.log("userWordsResponse.words:", userWordsResponse.words);
+
+    const userWords = userWordsResponse.words;
+
+    // Convert data to CSV format
+    const headers = ["English Word", "Hebrew Word"];
+    const csvRows = userWords.map(
+      (word: any) =>
+        `"${word.en_word.replace(/"/g, '""')}", "${word.he_word.replace(
+          /"/g,
+          '""'
+        )}"`
+    );
+
+    const csvContent = [headers.join(","), ...csvRows].join("\n");
+
+    // Save to a temporary CSV file
+    const filePath = path.join(__dirname, `UserWords_${Date.now()}.csv`);
+    fs.writeFileSync(filePath, "\uFEFF" + csvContent, "utf8");
+
+    // Send the file to the client
+    res.download(filePath, `UserWords.csv`, () => {
+      fs.unlinkSync(filePath); // Delete file after sending
+    });
+  } catch (error) {
+    console.error("Export Error:", error);
+    res.status(500).json({ error: "Failed to export user words" });
   }
 } //work ok
