@@ -82,7 +82,8 @@ export const login = async (req: any, res: any) => {
     res.send({ ok: true });
   } catch (error) {
     console.error(error);
-    res.status(401).send({ error });
+    console.log("error message:", error.message)
+    res.status(401).json({ error: error.message }); // ✅ Send error as JSON
   }
 }; //work ok
 
