@@ -1,18 +1,27 @@
+import csv from "csv-parser";
+import { Request, Response } from "express";
 import fs from "fs";
-import path from "path";
 import jwt from "jwt-simple";
-import { Response } from "express";
 import { Document, ObjectId } from "mongoose";
+import multer from "multer";
+import path from "path";
 import {
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
   getOneDataFromJoinCollectionInMongoDB,
   getXRandomDataList,
 } from "../../CRUD/mongoCRUD";
-import { IUserWordDoc, UserWordsModel, WordModel } from "./../words/wordModel";
+import { UserWordsModel, WordModel } from "./../words/wordModel";
+import xlsx from "xlsx";
+import { addWord } from "../words/wordCont";
 
 let ObjectId = require("mongoose").Types.ObjectId;
+const upload = multer({ dest: "uploads/" });
 
+// Extend Request to include 'file'
+interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+}
 interface UserWordDocument extends Document {
   id: string;
   wordsId: ObjectId;
@@ -108,8 +117,7 @@ export async function getAllUsersWords(req: any, res?: any) {
 
     // Otherwise, return the data for internal use (like in exportUserWordsAsCSV)
     return extractedResponses;
-
-    } catch (error) {
+  } catch (error) {
     console.error(error);
     if (res) {
       return res.status(500).send({ ok: false, error: error.message });
@@ -274,3 +282,133 @@ export async function exportUserWordsAsCSV(req: any, res: Response) {
     res.status(500).json({ error: "Failed to export user words" });
   }
 } //work ok
+
+//import user-words from file
+export async function importUserWordsFromCSV(req: Request, res: Response) {
+  try {
+    console.log("Hi from importUserWordsFromCSV");
+
+    // Step 1: Get User ID from cookie
+    const userID: string = req.cookies.user;
+    if (!userID) throw new Error("User ID not found in cookies");
+
+    // Step 2: Check if File Exists
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+
+    const filePath = req.file.path;
+    const words: { en_word: string; he_word: string }[] = [];
+
+    // Step 3: Handle Different File Types
+    if (
+      req.file.mimetype === "text/csv" ||
+      req.file.originalname.endsWith(".csv")
+    ) {
+      // Process CSV File
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on("data", (row) => {
+          if (row.en_word && row.he_word) {
+            words.push({ en_word: row.en_word, he_word: row.he_word });
+          }
+        })
+        .on("end", async () => {
+          try {
+            if (words.length === 0) {
+                return res.status(400).json({ message: "No valid words found in file" });
+            }
+        
+            console.log("Words to insert:", words);
+        
+            const results = [];
+            for (const word of words) {
+                const result = await addWordDirectly(word.en_word, word.he_word, userID);
+                results.push(result);
+            }
+        
+            fs.unlinkSync(filePath); // ✅ Delete file after processing
+        
+            res.status(200).json({ok: true, message: "Words imported successfully", results });
+        } catch (error: any) {
+            console.error("Error inserting words into DB:", error);
+            res.status(500).json({ok: false, message: "Error importing words", error });
+        }
+        
+        })
+        .on("error", (err) => {
+          console.error("Error reading CSV:", err);
+          res
+            .status(500)
+            .json({ok: false, message: "Error reading CSV file", error: err });
+        });
+    } else if (
+      req.file.mimetype.includes("spreadsheet") ||
+      req.file.originalname.endsWith(".xlsx")
+    ) {
+      // Process Excel (.xlsx) File
+      const workbook = xlsx.readFile(filePath);
+      const sheetName = workbook.SheetNames[0]; // Get first sheet
+      const sheet = workbook.Sheets[sheetName];
+      const excelData = xlsx.utils.sheet_to_json(sheet); // Convert sheet to JSON
+
+      excelData.forEach((row: any) => {
+        if (row.en_word && row.he_word) {
+          words.push({ en_word: row.en_word, he_word: row.he_word });
+        }
+      });
+
+      try {
+        if (words.length === 0) {
+            return res.status(400).json({ok: false, message: "No valid words found in file" });
+        }
+    
+        console.log("Words to insert:", words);
+    
+        const results = [];
+        for (const word of words) {
+            const result = await addWordDirectly(word.en_word, word.he_word, userID);
+            results.push(result);
+        }
+    
+        fs.unlinkSync(filePath); // Delete file after processing
+    
+        res.status(200).json({ok: true, message: "Words imported successfully", results });
+    } catch (error: any) {
+        console.error("Error inserting words into DB:", error);
+        res.status(500).json({ok: false, message: "Error importing words", error });
+    }
+    
+    } else {
+      return res.status(400).json({ok: false, message: "Unsupported file format" });
+    }
+  } catch (error) {
+    console.error("Import error:", error);
+    res.status(500).json({ok: false, message: "Failed to import words", error });
+  }
+}
+
+export async function addWordDirectly(en_word: string, he_word: string, userID: string) {
+  try {
+    // Create a fake req object for the `addWord` function
+    const fakeReq = {
+      cookies: { user: userID },
+      body: { en_word, he_word }
+    };
+
+    // Create a fake res object to capture the response
+    const fakeRes = {
+      send: (data: any) => data,  // Simply return data (for resolving the promise)
+      status: function (code: number) { 
+        this.statusCode = code; 
+        return this; 
+      },
+      json: function (data: any) { return data; }
+    };
+
+    // Call `addWord` and wait for it to resolve
+    const result = await addWord(fakeReq as any, fakeRes as any);
+    return result;
+  } catch (error) {
+    console.error("Error inserting word into DB:", error);
+    throw new Error("Error inserting word");
+  }
+}
