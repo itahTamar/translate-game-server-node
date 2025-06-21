@@ -273,3 +273,29 @@ export const deleteOneDataFromMongoDB = async <T extends Document>(
     return { ok: false, error: error.message };
   }
 }; //work ok
+
+//delete many
+export const deleteManyDataFromMongoDB = async <T extends Document>(
+  modelName: Model<MyDocument<T>>,
+  filter: any
+) => {
+  try {
+    console.log("At mongoCRUD/deleteManyDataFromMongoDB the modelName:", modelName)
+    console.log("At mongoCRUD/deleteManyDataFromMongoDB the filter:", filter)
+    
+    const response = await modelName.deleteMany(filter);
+    console.log("At mongoCRUD/deleteManyDataFromMongoDB the response:", response)
+    
+    if (response.deletedCount >= 0) {
+      return { 
+        ok: true, 
+        deletedCount: response.deletedCount 
+      };
+    } else {
+      return { ok: false };
+    }
+  } catch (error) {
+    console.error(error);
+    return { ok: false, error: error.message };
+  }
+};

@@ -6,6 +6,7 @@ import { Document, ObjectId } from "mongoose";
 import multer from "multer";
 import path from "path";
 import {
+  deleteManyDataFromMongoDB,
   deleteOneDataFromMongoDB,
   getAllDataFromMongoDB,
   getOneDataFromJoinCollectionInMongoDB,
@@ -191,7 +192,7 @@ export async function getXRandomUserWords(req: any, res: any) {
   }
 } //work ok
 
-//delete word from user
+//delete one word from user
 export async function deleteUserWord(req: any, res: any) {
   try {
     const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
@@ -234,6 +235,56 @@ export async function deleteUserWord(req: any, res: any) {
   }
 } //work ok
 
+//delete all/many word from user
+export async function deleteAllUserWords(req: any, res: any) {
+  try {
+    const userID: string = req.cookies.user; //unique id. get the user id from the cookie - its coded!
+    if (!userID)
+      throw new Error(
+        "At userWordsCont deleteAllUserWords: userID not found in cookie"
+      );
+    console.log("At userWordsCont deleteAllUserWords the userID from cookies: ", {
+      userID,
+    });
+    const secret = process.env.JWT_SECRET;
+    if (!secret)
+      throw new Error(
+        "At userWordsCont deleteAllUserWords: Couldn't load secret from .env"
+      );
+    const decodedUserId = jwt.decode(userID, secret);
+    console.log(
+      "At userWordsCont deleteAllUserWords the decodedUserId:",
+      decodedUserId
+    );
+
+    console.log("at wordCont/deleteAllUserWords for userId:", decodedUserId);
+    
+    const result = await deleteManyDataFromMongoDB(UserWordsModel, {
+      userId: decodedUserId, // Only filter by userId to delete all user's words
+    });
+
+    if (result.ok) {
+      res.send({ 
+        ok: true, 
+        message: `Successfully deleted ${result.deletedCount || 'all'} words for user`,
+        deletedCount: result.deletedCount 
+      });
+    } else {
+      res.send({ 
+        ok: false, 
+        message: "Failed to delete user words",
+        error: result.error 
+      });
+    }
+  } catch (error) {
+    console.error(error, "at wordCont/deleteAllUserWords delete failed");
+    res.status(500).send({ 
+      ok: false, 
+      message: "Server error occurred while deleting user words" 
+    });
+  }
+}
+
 //export user-words to csv file
 export async function exportUserWordsAsCSV(req: any, res: Response) {
   try {
@@ -258,13 +309,10 @@ export async function exportUserWordsAsCSV(req: any, res: Response) {
     const userWords = userWordsResponse.words;
 
     // Convert data to CSV format
-    const headers = ["English Word", "Hebrew Word"];
+    const headers = ["en_word", "he_word"];
     const csvRows = userWords.map(
       (word: any) =>
-        `"${word.en_word.replace(/"/g, '""')}", "${word.he_word.replace(
-          /"/g,
-          '""'
-        )}"`
+        `${word.en_word.replace(/"/g,'')},${word.he_word.replace(/"/g,'')}`
     );
 
     const csvContent = [headers.join(","), ...csvRows].join("\n");
@@ -296,6 +344,7 @@ export async function importUserWordsFromCSV(req: Request, res: Response) {
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
     const filePath = req.file.path;
+        console.log("Processing file:", req.file.originalname, "Type:", req.file.mimetype);
     const words: { en_word: string; he_word: string }[] = [];
 
     // Step 3: Handle Different File Types
@@ -304,11 +353,15 @@ export async function importUserWordsFromCSV(req: Request, res: Response) {
       req.file.originalname.endsWith(".csv")
     ) {
       // Process CSV File
+      console.log("📄 Processing CSV file...");
+      await new Promise<void>((resolve, reject) => {
       fs.createReadStream(filePath)
-        .pipe(csv())
+        .pipe(csv({mapHeaders: ({ header }) => header.replace(/^\uFEFF/, '').trim()}))
         .on("data", (row) => {
-          if (row.en_word && row.he_word) {
-            words.push({ en_word: row.en_word, he_word: row.he_word });
+          const en = (row.en_word || row["en_word"] || "").trim()
+          const he = (row.he_word || row["he_word"] || "").trim().replace(/^"|"$/g, "");
+          if (en && he) {
+            words.push({ en_word: en, he_word: he });
           }
         })
         .on("end", async () => {
@@ -340,6 +393,7 @@ export async function importUserWordsFromCSV(req: Request, res: Response) {
             .status(500)
             .json({ok: false, message: "Error reading CSV file", error: err });
         });
+     });
     } else if (
       req.file.mimetype.includes("spreadsheet") ||
       req.file.originalname.endsWith(".xlsx")
